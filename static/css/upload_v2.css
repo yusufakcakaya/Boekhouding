@@ -1,0 +1,168 @@
+/* ========================================================= */
+/*              UPLOAD V2 — CLEAN FINTECH STYLE              */
+/* ========================================================= */
+
+.upload-wrapper {
+    width: 100%;
+    padding-left: 110px; /* sidebar boşluğu */
+    padding-right: 40px;
+    padding-top: 40px;
+}
+
+.upload-card {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 40px;
+    border-radius: 28px;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.08);
+}
+
+.upload-title {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.upload-sub {
+    font-size: 15px;
+    color: #777;
+    margin-bottom: 25px;
+}
+
+/* Flash messages */
+.flash {
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.flash-success {
+    background: #eaffea;
+    color: #0a9b30;
+}
+
+.flash-error {
+    background: #ffe5e9;
+    color: #d80032;
+}
+
+/* ========================================================= */
+/* SECTION TITLES */
+/* ========================================================= */
+
+.section {
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+/* ========================================================= */
+/* CAMPUS SELECTOR (PILLS STYLE) */
+/* ========================================================= */
+
+.campus-pills {
+    display: flex;
+    gap: 14px;
+}
+
+.campus-pill input {
+    display: none;
+}
+
+.campus-pill {
+    background: #f5f5f5;
+    padding: 12px 26px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    border: 2px solid transparent;
+    transition: 0.2s;
+}
+
+.campus-pill:hover {
+    background: #ffeaf2;
+}
+
+.campus-pill input:checked + span {
+    background: linear-gradient(90deg,#ff7bb2,#ff9a7f);
+    color: #fff;
+    padding: 12px 26px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(255,120,150,0.35);
+}
+
+/* ========================================================= */
+/* DROPZONE */
+/* ========================================================= */
+
+.dropzone {
+    border: 2px dashed #ffb6d5;
+    border-radius: 22px;
+    padding: 60px 20px;
+    text-align: center;
+    background: #fff;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.dropzone:hover {
+    background: #fff0f5;
+}
+
+.dropzone.dragover {
+    background: #ffe1ee;
+    border-color: #ff7bb2;
+}
+
+.drop-icon {
+    font-size: 46px;
+    color: #ff7fa8;
+    margin-bottom: 10px;
+}
+
+.dropzone p {
+    font-size: 15px;
+    color: #666;
+}
+
+#csvInput {
+    display: none;
+}
+
+/* File preview text */
+.file-preview {
+    font-size: 15px;
+    color: #555;
+    margin-top: 12px;
+}
+
+/* ========================================================= */
+/* SUBMIT BUTTON */
+/* ========================================================= */
+
+.upload-btn {
+    width: 100%;
+    padding: 18px;
+    border-radius: 14px;
+    border: none;
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(90deg,#ff7bb2,#ff9a7f);
+    cursor: pointer;
+    transition: 0.2s;
+    margin-top: 25px;
+}
+
+.upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(255,120,150,0.35);
+}

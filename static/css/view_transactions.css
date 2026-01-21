@@ -1,0 +1,148 @@
+/* ================================================================= */
+/*        VIEW TRANSACTIONS — FINTECH LAYOUT (ISOLATED VERSION)     */
+/* ================================================================= */
+
+.transactions-page .content-wrapper {
+    width: 100%;
+    padding-left: 110px; 
+    padding-right: 40px;
+    padding-top: 40px;
+}
+
+.transactions-page .page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.transactions-page .page-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 22px;
+}
+
+/* ---------------- FILTER BAR ---------------- */
+
+.transactions-page .filter-bar {
+    background: #fff;
+    padding: 18px 22px;
+    border-radius: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    align-items: flex-end;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    margin-bottom: 30px;
+    max-width: 1200px;
+}
+
+.transactions-page .filter-item label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.transactions-page .fin-input,
+.transactions-page .fin-select {
+    width: 200px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    background: #fafafa;
+}
+
+
+
+/* ---------------- TABLE CARD ---------------- */
+
+.transactions-page .table-card {
+    background: #ffffff;
+    padding: 0;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    overflow: hidden;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ---------------- TABLE ---------------- */
+
+.transactions-page .fin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+.transactions-page .fin-table thead th {
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #666;
+}
+
+.transactions-page .fin-table tbody tr {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+.transactions-page .fin-table tbody td {
+    padding: 12px 14px;
+    font-size: 14px;
+}
+
+.transactions-page .small-muted {
+    font-size: 11px;
+    opacity: 0.55;
+}
+
+/* ---------------- AMOUNT COLORS ---------------- */
+
+.transactions-page .amount-positive {
+    color: #1dbf73;
+    font-weight: 700;
+}
+
+.transactions-page .amount-negative {
+    color: #ff4f6d;
+    font-weight: 700;
+}
+
+/* ---------------- DELETE BUTTON ---------------- */
+
+.transactions-page .del-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    background: #ffe5eb;
+    border: none;
+    color: #ff4f6d;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.transactions-page .del-btn:hover {
+    background: #ff4f6d;
+    color: white;
+}
+
+/* ---------------- SAVE BUTTON ---------------- */
+
+.transactions-page .save-bar {
+    text-align: right;
+    margin-top: 20px;
+}
+
+.transactions-page .btn-primary {
+    background: linear-gradient(90deg,#ff7bb2,#ff9a7f);
+    padding: 12px 22px;
+    border-radius: 12px;
+    border: none;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.transactions-page .btn-primary:hover {
+    opacity: 0.85;
+}

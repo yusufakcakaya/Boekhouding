@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Categorie Beheer{% endblock %}
+{% block page_title %}Categorie & Campus Code Beheer{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="/static/css/manage_categories.css">
+
+<!-- FLASH -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+
+<div class="categories-grid">
+
+    {% for code_type_name, codes in categories.items() %}
+
+    <div class="cat-card">
+        <h2 class="cat-title">{{ code_type_name|replace('Codes', ' Codes') }}</h2>
+
+        <!-- Add New -->
+        <form method="POST" action="{{ url_for('manage_categories') }}" class="add-form">
+            <input type="hidden" name="action" value="add">
+            <input type="hidden" name="code_type" value="{{ code_type_name }}">
+
+            <input type="text" name="new_code" placeholder="CODE (b.v. IT)"
+                   class="input-field code-input" maxlength="10" required>
+
+            <input type="text" name="description" placeholder="Beschrijving"
+                   class="input-field desc-input" required>
+
+            <button class="btn-add">+</button>
+        </form>
+
+        <!-- Code List -->
+        <div class="codes-list">
+
+            {% for code, desc in codes.items() %}
+
+            <div class="code-item">
+
+                <div class="code-badge">{{ code }}</div>
+                <div class="code-desc">{{ desc }}</div>
+
+                <form method="POST" action="{{ url_for('manage_categories') }}">
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="code_type" value="{{ code_type_name }}">
+                    <input type="hidden" name="code_to_delete" value="{{ code }}">
+                    <button class="delete-btn">✕</button>
+                </form>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

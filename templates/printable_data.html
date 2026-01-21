@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>Transactie Data Export</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+        h1 { color: #007bff; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 0.8em; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Gecategoriseerde Transactie Data Export ({{ transactions|length }} Records)</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Rekening</th>
+                <th>Bedrag</th>
+                <th>Tegenpartij</th>
+                <th>Omschrijving</th>
+                <th>Campus Code</th>
+                <th>Categorie Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in transactions %}
+            <tr>
+                <td>{{ row.BookingDate }}</td>
+                <td>{{ row.AccountName }}</td>
+                <td>{{ "{:,.2f}".format(row.Amount) }}</td>
+                <td>{{ row.CounterpartyName }}</td>
+                <td>{{ row.Description }}</td>
+                <td>{{ row.CampusCode or '' }}</td>
+                <td>{{ row.CategoryCode or '' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p style="margin-top: 30px;">Dit bestand is gegenereerd op {{ now.strftime('%d-%m-%Y %H:%M:%S') }}.</p>
+</body>
+</html>

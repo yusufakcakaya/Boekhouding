@@ -1,0 +1,24 @@
+{
+    "CampusCodes": {
+        "A": "All",
+        "K": "Karteuzerlaan Campus",
+        "JR": "JeanRay Campus",
+        "H": "Hoboken Campus",
+        "D": "Deurne Campus",
+        "GA": "Gent Algemeen",
+        "AA": "Antwerpen Algemeen"
+    },
+    "CategoryCodes": {
+        "O": "Onderhoud",
+        "K": "Kostgeld",
+        "P": "Preventie",
+        "F": "Fuel",
+        "A": "Activiteit",
+        "EW": "Energie Water",
+        "EE": "Energie Elektriciteit",
+        "EG": "Energie Gas",
+        "M": "Market",
+        "H": "Huur",
+        "B": "Besox"
+    }
+}

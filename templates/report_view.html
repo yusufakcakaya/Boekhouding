@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+{% block title %}Rapportage{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="/static/css/report_view.css">
+
+<style>
+/* CATEGORY GRID (2 columns) */
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-top: 20px;
+}
+
+/* Category card */
+.category-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+/* Category title badge */
+.category-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: #ff6fa8;
+    color: white;
+    border-radius: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+</style>
+
+
+<!-- ========================= -->
+<!-- PAGE HEADER -->
+<!-- ========================= -->
+
+<div class="report-header">
+    <div class="report-title-left">
+        <img src="/static/img/logo.png" class="report-logo">
+        <div>
+            <h1 class="report-main-title">Financieel Rapport</h1>
+            <p class="report-period">Periode: {{ start_date }} t/m {{ end_date }}</p>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('download_pdf') }}">
+        <textarea name="report_json" style="display:none;">{{ report_json }}</textarea>
+        <button class="btn-primary pdf-btn">PDF Download</button>
+    </form>
+</div>
+
+
+
+<!-- ========================= -->
+<!-- 1) PERIODE SUMMARY -->
+<!-- ========================= -->
+
+<div class="card">
+    <h2>Periode Overzicht</h2>
+
+    <table class="table clean-table">
+        <thead>
+            <tr>
+                <th>Omschrijving</th>
+                <th>Bedrag (EUR)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Totale Inkomsten</td>
+                <td class="pos">{{ report_data.summary.income | round(2) }}</td>
+            </tr>
+            <tr>
+                <td>Totale Uitgaven</td>
+                <td class="neg">{{ report_data.summary.expense | round(2) }}</td>
+            </tr>
+            <tr class="row-highlight">
+                <td><b>Netto Balans</b></td>
+                <td><b>{{ report_data.summary.net | round(2) }}</b></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+
+<!-- ========================= -->
+<!-- 2) CAMPUS OVERVIEW -->
+<!-- ========================= -->
+
+<div class="card">
+    <h2>Campus Overzicht</h2>
+
+    <table class="table clean-table">
+        <thead>
+            <tr>
+                <th>Campus</th>
+                <th>Inkomsten</th>
+                <th>Uitgaven</th>
+                <th>Netto</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        {% for code, row in report_data.campus.items() %}
+            <tr>
+                <td>{{ code }}</td>
+                <td class="pos">{{ row.Income | round(2) }}</td>
+                <td class="neg">{{ row.Expense | round(2) }}</td>
+                <td><b>{{ row.NetBalance | round(2) }}</b></td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+
+
+
+<!-- ========================= -->
+<!-- 3) CATEGORY OVERVIEW -->
+<!-- ========================= -->
+
+<div class="card">
+    <h2>Categorie Overzicht</h2>
+
+    <table class="table clean-table">
+        <thead>
+            <tr>
+                <th>Categorie</th>
+                <th>Inkomsten</th>
+                <th>Uitgaven</th>
+                <th>Netto</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        {% for cat, row in report_data.categories.items() %}
+            <tr>
+                <td>{{ cat }}</td>
+                <td class="pos">{{ row.Income | round(2) }}</td>
+                <td class="neg">{{ row.Expense | round(2) }}</td>
+                <td><b>{{ row.NetBalance | round(2) }}</b></td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+
+
+
+<!-- ========================= -->
+<!-- 4) CHARTS -->
+<!-- ========================= -->
+
+<div class="chart-section">
+
+    <div class="chart-card">
+        <h3>Maandelijkse Netto Trend</h3>
+        {% if report_data.graphs.trend %}
+            <img src="{{ report_data.graphs.trend }}" class="chart-img">
+        {% else %}
+            <p class="no-chart">Geen gegevens</p>
+        {% endif %}
+    </div>
+
+    <div class="chart-card">
+        <h3>Inkomsten vs Uitgaven</h3>
+        {% if report_data.graphs.income_expense %}
+            <img src="{{ report_data.graphs.income_expense }}" class="chart-img">
+        {% else %}
+            <p class="no-chart">Geen gegevens</p>
+        {% endif %}
+    </div>
+
+    <div class="chart-card chart-wide">
+        <h3>Uitgaven per Campus</h3>
+        {% if report_data.graphs.pie %}
+            <img src="{{ report_data.graphs.pie }}" class="chart-img">
+        {% else %}
+            <p class="no-chart">Geen gegevens</p>
+        {% endif %}
+    </div>
+
+</div>
+<!-- ========== CATEGORY × CAMPUS GRID (3 COLUMN) ========== -->
+<h2>Categorie × Campus Overzicht</h2>
+
+<div class="category-section">
+    <div class="category-grid">
+        {% for cat, camps in report_data.category_campus.items() %}
+        <div class="category-card">
+            <div class="cat-badge">{{ cat }}</div>
+
+            <table class="fin-table">
+                <thead>
+                    <tr>
+                        <th>Campus</th>
+                        <th>Inkomsten</th>
+                        <th>Uitgaven</th>
+                        <th>Netto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for camp, row in camps.items() %}
+                    <tr>
+                        <td>{{ camp }}</td>
+                        <td class="amount-positive">{{ row.Income | round(2) }}</td>
+                        <td class="amount-negative">{{ row.Expense | round(2) }}</td>
+                        <td>{{ row.Net | round(2) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+<!-- ========== CATEGORY DEFINITIONS (FULL WIDTH) ========== -->
+<div class="full-width-section">
+    <h3 class="mt-4">Categorie Uitleg</h3>
+    <div class="card">
+        <table class="table table-bordered">
+            <thead>
+                <tr><th>Categorie</th><th>Betekenis</th></tr>
+            </thead>
+            <tbody>
+                {% for code, desc in category_descriptions.items() %}
+                <tr>
+                    <td><b>{{ code }}</b></td>
+                    <td>{{ desc }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- ========== TRANSACTION SUMMARY (FULL WIDTH) ========== -->
+<div class="full-width-section">
+    <div class="card">
+        <h2>Transacties Samenvatting</h2>
+
+        <table class="table transactions-table">
+            <thead>
+                <tr>
+                    <th>Datum</th>
+                    <th>Tegenpartij</th>
+                    <th>Omschrijving</th>
+                    <th>Bedrag</th>
+                    <th>Campus</th>
+                    <th>Categorie</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in report_data.transactions %}
+                <tr>
+                    <td>{{ tx.BookingDate }}</td>
+                    <td>{{ tx.CounterpartyName }}</td>
+                    <td>{{ tx.Description }}</td>
+                    <td class="{{ 'pos' if tx.Amount > 0 else 'neg' }}">{{ tx.Amount | round(2) }}</td>
+                    <td>{{ tx.CampusCode }}</td>
+                    <td>{{ tx.CategoryCode }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

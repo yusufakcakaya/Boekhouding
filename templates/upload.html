@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Transacties Uploaden{% endblock %}
+{% block page_title %}CSV Uploaden{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="/static/css/upload_v2.css">
+<script src="/static/js/upload_v2.js" defer></script>
+
+<div class="upload-wrapper">
+
+    <!-- UPLOAD CARD -->
+    <div class="upload-card">
+
+        <h2 class="upload-title">Nieuwe Transacties Uploaden</h2>
+        <p class="upload-sub">Upload het CSV-bestand van de bank en kies de campuslocatie</p>
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST"
+              action="{{ url_for('upload_page') }}"
+              enctype="multipart/form-data"
+              id="uploadForm">
+
+            <!-- 1) CAMPUS LOCATIE ------------------------------------------- -->
+            <div class="section">
+                <label class="section-title">1. Campus Locatie</label>
+
+                <div class="campus-pills">
+                    <label class="campus-pill">
+                        <input type="radio" name="campus_location" value="GENT" required>
+                        <span>Gent</span>
+                    </label>
+
+                    <label class="campus-pill">
+                        <input type="radio" name="campus_location" value="ANTWERPEN" required>
+                        <span>Antwerpen</span>
+                    </label>
+                </div>
+            </div>
+
+    
+
+            <!-- 2) UPLOAD BOX ----------------------------------------------- -->
+            <div class="section">
+                <label class="section-title">2. CSV Bestand Uploaden</label>
+
+                <div class="dropzone" id="dropzone">
+                    <div class="drop-icon">⬆</div>
+                    <p>Sleep een .csv bestand hierheen of klik om te kiezen</p>
+
+                    <input type="file" name="file" id="csvInput" accept=".csv" required>
+                </div>
+
+                <div class="file-preview" id="filePreview">
+                    Nog geen bestand geselecteerd.
+                </div>
+            </div>
+
+            <!-- SUBMIT BUTTON -->
+            <button class="upload-btn">Transacties Uploaden</button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

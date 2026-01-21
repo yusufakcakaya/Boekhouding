@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="/static/css/dashboard.css">
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+<!-- SUMMARY GRID -->
+<div class="summary-grid">
+
+    <div class="card summary-card gradient-pink">
+        <div class="card-title">
+            {% if account_filter == "ALL" %}
+                Totaal Saldo — Alle Campussen
+            {% elif account_filter == "ANTWERPEN" %}
+                Antwerpen
+            {% elif account_filter == "GENT" %}
+                Gent
+            {% endif %}
+        </div>
+        <div class="card-value">{{ total_balance }} EUR</div>
+        <div class="card-sub">Laatste datum: {{ latest_date }}</div>
+    </div>
+
+    <div class="card summary-card white-shadow">
+        <div class="card-title">Transacties</div>
+        <div class="card-value">{{ total_transactions }}</div>
+        <div class="card-sub">Aantal transacties</div>
+    </div>
+
+</div>
+
+
+<!-- KPI GRID -->
+<div class="kpi-container">
+
+    
+
+    <div class="kpi-card kpi-orange">
+        <div class="kpi-title">Maandelijkse Groei</div>
+        <div class="kpi-value">{{ kpi_growth }}%</div>
+    </div>
+
+    <div class="kpi-card kpi-pink">
+        <div class="kpi-title">Uitgaven Ratio</div>
+        <div class="kpi-value">{{ kpi_expense_ratio }}%</div>
+    </div>
+
+    <div class="kpi-card kpi-purple">
+        <div class="kpi-title">Meest Actieve Campus</div>
+        <div class="kpi-value">{{ kpi_top_campus }}</div>
+    </div>
+
+    <div class="kpi-card kpi-red">
+        <div class="kpi-title">Grootste Kostenpost</div>
+        <div class="kpi-value">{{ kpi_biggest_cost }}</div>
+    </div>
+
+</div>
+
+<!-- CHART GRID -->
+<div class="chart-grid">
+
+    <div class="chart-card">
+        <div class="chart-title">Maandelijkse Netto Trend</div>
+        {% if monthly_trend_chart %}
+            <img src="{{ monthly_trend_chart }}" class="chart-img">
+        {% else %}
+            <div class="no-data">Geen gegevens beschikbaar</div>
+        {% endif %}
+    </div>
+
+    <div class="chart-card">
+        <div class="chart-title">Inkomsten vs Uitgaven</div>
+        {% if income_expense_chart %}
+            <img src="{{ income_expense_chart }}" class="chart-img">
+        {% else %}
+            <div class="no-data">Geen gegevens beschikbaar</div>
+        {% endif %}
+    </div>
+
+    {% if account_filter == "ALL" %}
+    <div class="chart-card chart-wide">
+        <div class="chart-title">Antwerpen vs Gent — Netto Vergelijking</div>
+        {% if city_compare_chart %}
+            <img src="{{ city_compare_chart }}" class="chart-img">
+        {% else %}
+            <div class="no-data">Geen gegevens beschikbaar</div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- CAMPUS BREAKDOWN -->
+{% if campus_breakdown %}
+
+<div class="section-title">Campus Saldo Overzicht</div>
+
+<div class="big-badge antwerp-badge">Antwerpen</div>
+
+<div class="campus-grid group-box">
+{% for code in ["H", "D"] %}
+    <div class="campus-card">
+        <div class="campus-header">
+            <span class="campus-code">{{ code }}</span>
+            <span class="campus-name">{{ campus_options[code] }}</span>
+        </div>
+
+        <div class="campus-amount">
+            {{ campus_breakdown[code].NetBalance|float|round(2) }} EUR
+        </div>
+
+        <div class="campus-details">
+            <div>Inkomsten: <b class="pos">{{ campus_breakdown[code].Income|float|round(2) }}</b></div>
+            <div>Uitgaven: <b class="neg">{{ campus_breakdown[code].Expense|float|round(2) }}</b></div>
+        </div>
+    </div>
+{% endfor %}
+</div>
+
+<div class="big-badge gent-badge">Gent</div>
+
+<div class="campus-grid group-box">
+{% for code in ["JR", "K"] %}
+    <div class="campus-card">
+        <div class="campus-header">
+            <span class="campus-code">{{ code }}</span>
+            <span class="campus-name">{{ campus_options[code] }}</span>
+        </div>
+
+        <div class="campus-amount">
+            {{ campus_breakdown[code].NetBalance|float|round(2) }} EUR
+        </div>
+
+        <div class="campus-details">
+            <div>Inkomsten: <b class="pos">{{ campus_breakdown[code].Income|float|round(2) }}</b></div>
+            <div>Uitgaven: <b class="neg">{{ campus_breakdown[code].Expense|float|round(2) }}</b></div>
+        </div>
+    </div>
+{% endfor %}
+</div>
+
+{% endif %}
+
+{% endblock %}

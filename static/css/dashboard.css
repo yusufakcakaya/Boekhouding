@@ -1,0 +1,525 @@
+/* -------------------------------------------------- */
+/*   GLOBAL LAYOUT – SIDEBAR + TOPBAR + STRUCTURE     */
+/* -------------------------------------------------- */
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #f6f7fb;
+    font-family: 'Inter', sans-serif;
+}
+
+.layout {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ---------------------- SIDEBAR ---------------------- */
+.sidebar {
+    width: 80px;
+    background: #ffffff;
+    border-right: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 25px;
+    gap: 25px;
+}
+
+.sidebar-logo img {
+    width: 42px;
+    opacity: 0.9;
+}
+
+.sidebar-menu {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.menu-item {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: #f1f1f1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #444;
+    font-size: 22px;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.menu-item:hover {
+    background: #ffe2ef;
+    color: #ff4fa2;
+}
+
+.menu-item.active {
+    background: #ff4fa2;
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 79, 162, 0.35);
+}
+
+/* ---------------------- MAIN CONTENT ---------------------- */
+.main-content {
+    flex: 1;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 0 40px;
+}
+
+/* ---------------------- TOPBAR ---------------------- */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 0 10px 0;
+}
+
+.account-switch select {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: #444;
+}
+
+.logout-btn {
+    padding: 10px 16px;
+    background: #ff4fa2;
+    color: white;
+    border-radius: 12px;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.logout-btn:hover {
+    background: #d63f86;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    object-fit: contain;
+}
+
+/* ---------------------- PAGE CONTENT ---------------------- */
+.content-area {
+    padding-bottom: 40px;
+}
+
+/* FLASHES */
+.flash {
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+.flash-success { background:#e3ffe9; color:#0a8a34; }
+.flash-error { background:#ffe3e3; color:#c91919; }
+
+
+/* TOP SUMMARY GRID */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 22px;
+    margin-bottom: 30px;
+}
+
+.summary-card {
+    border-radius: 22px;
+    padding: 28px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    color: #333;
+}
+
+.gradient-pink {
+    background: linear-gradient(90deg,#ff7bb2,#ff9a7f);
+    color: #fff;
+}
+
+.white-shadow {
+    background:#fff;
+}
+
+.card-title {
+    font-size: 15px;
+    opacity: 0.8;
+}
+
+.card-value {
+    font-size: 42px;
+    font-weight: 700;
+    margin-top: 10px;
+}
+
+.card-sub {
+    margin-top: 6px;
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+
+/* CHART GRID */
+.chart-grid {
+    display:grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 22px;
+    margin-bottom: 40px;
+}
+
+.chart-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+}
+
+.chart-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.chart-img {
+    width:100%;
+    border-radius:16px;
+}
+
+.no-data {
+    padding:40px;
+    text-align:center;
+    color:#aaa;
+}
+
+
+/* CAMPUS BREAKDOWN */
+.breakdown-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 18px;
+}
+
+.campus-grid {
+    display:grid;
+    grid-template-columns: repeat(3,1fr);
+    gap:20px;
+}
+
+.campus-card {
+    background:#fff;
+    border-radius:20px;
+    padding:18px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.06);
+}
+
+.campus-header {
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:10px;
+}
+
+.campus-code {
+    background:#ff8bb8;
+    padding:4px 10px;
+    border-radius:8px;
+    color:#fff;
+    font-weight:700;
+}
+
+.campus-name {
+    color:#666;
+    font-size:13px;
+}
+
+.campus-amount {
+    font-size:28px;
+    font-weight:700;
+    margin:8px 0;
+}
+
+.campus-details {
+    font-size:14px;
+    color:#666;
+}
+
+.pos { color:#00b271; }
+.neg { color:#d84040; }
+
+/* -------------------------------------------------- */
+/*   TRANSACTIES PAGE – BEAUTIFIED TABLE              */
+/* -------------------------------------------------- */
+
+.transactie-table-wrapper {
+    margin-top: 25px;
+}
+
+.fin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+.fin-table thead tr {
+    background: transparent !important;
+}
+
+.fin-table thead th {
+    padding: 14px;
+    color: #555;
+    font-weight: 700;
+    font-size: 14px;
+    text-align: left;
+}
+
+.fin-table tbody tr {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+}
+
+.fin-table tbody tr td {
+    padding: 18px 16px;
+    font-size: 15px;
+    border-top: 1px solid #f2f2f2;
+}
+
+.fin-table tbody tr td:first-child {
+    border-top-left-radius: 14px;
+}
+.fin-table tbody tr td:last-child {
+    border-top-right-radius: 14px;
+}
+
+.fin-table tbody tr:hover {
+    background: #fff7fa;
+    box-shadow: 0 4px 20px rgba(255, 90, 140, 0.15);
+}
+
+/* --- Bedrag highlight --- */
+.amount-positive {
+    color: #1dbf73;
+    font-weight: 700;
+}
+.amount-negative {
+    color: #ff4f6d;
+    font-weight: 700;
+}
+
+/* --- Select kutuları fintech style --- */
+.fin-select {
+    border-radius: 12px !important;
+    border: 1px solid #ddd !important;
+    padding: 8px 10px !important;
+    background: #fafafa !important;
+    font-size: 14px !important;
+}
+.fin-select:focus {
+    border-color: #ff5f9e !important;
+    box-shadow: 0 0 0 3px rgba(255, 122, 168, 0.25);
+    outline: none;
+}
+
+/* --- Delete button --- */
+.del-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: none;
+    background: #ffe5eb;
+    color: #ff4f6d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.del-btn:hover {
+    background: #ff4f6d;
+    color: #fff;
+}
+.group-badge {
+    display: inline-block;
+    background: #ff6fb5;
+    color: white;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-size: 18px;
+    margin: 25px 0 10px 5px;
+}
+/* ============================= */
+/* BADGE FOR CAMPUSES            */
+/* ============================= */
+
+.campus-badge {
+    background: #ff7eb3;
+    padding: 7px 14px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    margin-right: 7px;
+    font-size: 15px;
+    display: inline-block;
+}
+
+.badge-group {
+    margin-bottom: 12px;
+}
+
+/* ============================= */
+/* Section titles                */
+/* ============================= */
+
+.section-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 25px 0 10px;
+}
+
+/* Chart spacing fix */
+.chart-card img {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.big-badge {
+    display: inline-block;
+    padding: 10px 22px;
+    border-radius: 18px;
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 25px;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.antwerp-badge { background: #ff6b81; }
+.gent-badge    { background: #6c8dff; }
+
+.campus-badge-row {
+    margin-bottom: 15px;
+}
+
+.small-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #ff7aa8;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+    margin-right: 6px;
+}
+
+
+/* ============================= */
+/* FINAL KPI COMPONENT           */
+/* ============================= */
+
+.kpi-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin: 25px 0;
+}
+
+.kpi-card {
+    padding: 22px;
+    border-radius: 18px;
+    color: #fff;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 110px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.kpi-title {
+    font-size: 16px;
+    opacity: 0.95;
+    margin-bottom: 6px;
+}
+
+.kpi-value {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+    color: white !important;
+}
+
+/* COLORS */
+.kpi-orange { background: linear-gradient(135deg, #ffa74a, #ff7a00); }
+.kpi-pink   { background: linear-gradient(135deg, #ff82b2, #ff4fa1); }
+.kpi-purple { background: linear-gradient(135deg, #9a6bff, #7253ff); }
+.kpi-red    { background: linear-gradient(135deg, #ff6262, #ff3b3b); }
+
+
+
+/* ============================= */
+/* CATEGORY GRID FULL-WIDTH FIX */
+/* ============================= */
+
+/* Parent container: kategori bölümünün tüm ekranı kullanması için */
+.category-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+/* İç grid: max genişlik veriyoruz, ortalanıyor */
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-top: 20px;
+    width: 100%;
+
+}
+
+/* Tek kategori kartı */
+.category-card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+/* Kategori rozeti */
+.cat-badge {
+    display: inline-block;
+    background: #ff7aa8;
+    padding: 6px 14px;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 12px;
+    font-size: 15px;
+}
+
+/* Tablo genişlik kontrolü */
+.category-card table {
+    width: 100%;
+}

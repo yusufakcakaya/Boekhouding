@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>Inloggen</title>
+    <link rel="stylesheet" href="/static/css/login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <!-- LEFT SIDE - IMAGE / LOGO -->
+    <div class="left-side">
+        <img src="/static/img/lucerna_logo_avatar.png" class="big-logo">
+        <h1 class="brand-title">Financieel Beheer</h1>
+        <p class="brand-sub">Internaat Lucerna</p>
+    </div>
+
+    <!-- RIGHT SIDE - LOGIN FORM -->
+    <div class="login-card">
+
+        <h2 class="login-title">Welkom</h2>
+        <p class="login-sub">Log in om verder te gaan</p>
+
+        {% if error %}
+            <div class="alert">{{ error }}</div>
+        {% endif %}
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+
+            <label class="field-label">Gebruikersnaam</label>
+            <input type="text" name="username" class="input-field" required autofocus>
+
+            <label class="field-label">Wachtwoord</label>
+            <input type="password" name="password" class="input-field" required>
+
+            <button class="login-btn">Inloggen</button>
+
+        </form>
+
+        <!-- 🔥 ADDED: "Forgot password" link – tasarıma uygun -->
+        <div class="forgot-wrapper">
+            <a href="{{ url_for('dashboard') }}" class="forgot-link">Wachtwoord vergeten?</a>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

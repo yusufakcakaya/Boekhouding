@@ -1,0 +1,134 @@
+/* FLASH */
+.flash {
+    padding:14px 18px;
+    border-radius:12px;
+    margin-bottom:20px;
+    font-size:14px;
+    font-weight:600;
+}
+.flash-success { background:#e3ffe9; color:#0a8a34; }
+.flash-error { background:#ffe1e1; color:#c21d1d; }
+
+/* GRID */
+.user-grid {
+    display:grid;
+    grid-template-columns: 1fr 2fr;
+    gap:25px;
+}
+
+/* CARDS */
+.user-card {
+    background:#fff;
+    padding:25px;
+    border-radius:22px;
+    box-shadow:0 12px 28px rgba(0,0,0,0.08);
+}
+
+.card-title {
+    font-size:20px;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+/* FORM */
+.field-label {
+    font-size:14px;
+    font-weight:600;
+    margin-top:15px;
+    margin-bottom:5px;
+}
+
+.input-field {
+    width:100%;
+    height:45px;
+    border-radius:14px;
+    border:1px solid #ddd;
+    padding:0 14px;
+    font-size:15px;
+}
+
+.btn-submit {
+    margin-top:25px;
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:14px;
+    background:linear-gradient(90deg,#ff7bb2,#ff9a7f);
+    color:white;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 8px 25px rgba(255,120,170,0.35);
+}
+
+/* USER LIST TABLE */
+.styled-table {
+    width:100%;
+    border-collapse:collapse;
+}
+
+.styled-table th {
+    text-align:left;
+    padding:12px 4px;
+    font-size:14px;
+    color:#555;
+    border-bottom:1px solid #eee;
+}
+
+.styled-table td {
+    padding:12px 4px;
+    font-size:15px;
+    border-bottom:1px solid #f0f0f0;
+}
+
+.center {
+    text-align:center;
+}
+
+/* ROLE SELECT */
+.role-form {
+    display:flex;
+    gap:8px;
+    align-items:center;
+}
+
+.role-select {
+    border:1px solid #ddd;
+    border-radius:10px;
+    padding:6px 10px;
+}
+
+.save-role-btn {
+    background:#eee;
+    border:none;
+    padding:6px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+}
+
+/* DELETE BUTTON */
+.delete-btn {
+    background:#ffeded;
+    color:#d33;
+    border:none;
+    padding:8px 12px;
+    border-radius:10px;
+    font-size:13px;
+    cursor:pointer;
+}
+
+.delete-btn:hover {
+    background:#ffd2d2;
+}
+
+/* ADMIN LOCK */
+.admin-lock {
+    padding:6px 10px;
+    background:#ddd;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    color:#555;
+}

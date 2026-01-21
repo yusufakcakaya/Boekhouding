@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Rapportage Opties{% endblock %}
+{% block page_title %}Rapportage Opties{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="/static/css/report_options.css">
+
+<div class="report-card">
+
+    <h2 class="section-header">Rapport Genereren</h2>
+    <p class="section-sub">Selecteer periode en gewenste filters</p>
+
+    <form method="POST" action="{{ url_for('generate_report') }}">
+
+        <!-- DATE RANGE -->
+        <div class="section">
+            <label class="field-label">1. Periode Selecteren</label>
+
+            <div class="date-grid">
+                <div>
+                    <span class="small-label">Start Datum</span>
+                    <input type="date" class="input-field" name="start_date" required>
+                </div>
+                <div>
+                    <span class="small-label">Eind Datum</span>
+                    <input type="date" class="input-field" name="end_date" required>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- CAMPUS FILTER -->
+        <div class="section">
+            <label class="field-label">2. Campus Filter</label>
+
+            <div class="pill-check-row">
+                <label class="pill-check">
+                    <input type="checkbox" name="campus_filter" value="ALL" checked>
+                    <span>Alle Campussen</span>
+                </label>
+            </div>
+
+            <div class="pill-grid">
+                {% for code in campuses %}
+                <label class="pill-check">
+                    <input type="checkbox" name="campus_filter" value="{{ code }}">
+                    <span>{{ code }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+
+        <!-- CATEGORY FILTER -->
+        <div class="section">
+            <label class="field-label">3. Categorie Filter</label>
+
+            <div class="pill-check-row">
+                <label class="pill-check">
+                    <input type="checkbox" name="category_filter" value="ALL" checked>
+                    <span>Alle Categorieën</span>
+                </label>
+            </div>
+
+            <div class="pill-grid">
+                {% for code in categories %}
+                <label class="pill-check">
+                    <input type="checkbox" name="category_filter" value="{{ code }}">
+                    <span>{{ code }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+
+        <!-- ACCOUNT FILTER -->
+        <div class="section">
+            <label class="field-label">4. Bankrekening Filter</label>
+
+            <div class="pill-check-row">
+                <label class="pill-check">
+                    <input type="checkbox" name="account_filter" value="ALL" checked>
+                    <span>Alle Accounts</span>
+                </label>
+            </div>
+
+            <div class="pill-grid">
+                {% for acc in accounts %}
+                <label class="pill-check">
+                    <input type="checkbox" name="account_filter" value="{{ acc }}">
+                    <span>{{ acc }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="submit-holder">
+            <button type="submit" class="submit-btn">
+                Rapport Genereren
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

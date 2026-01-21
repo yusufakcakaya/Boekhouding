@@ -1,0 +1,114 @@
+.report-card {
+    background: #fff;
+    padding: 35px 45px;
+    border-radius: 24px;
+    max-width: 780px;
+    margin: auto;
+    margin-top: 20px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+}
+
+.section-header {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.section-sub {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 25px;
+}
+
+.field-label {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.section {
+    margin-bottom: 35px;
+}
+
+.date-grid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 18px;
+}
+
+.small-label {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 4px;
+    display:block;
+}
+
+.input-field {
+    width: 100%;
+    height: 45px;
+    border-radius: 14px;
+    border: 1px solid #ddd;
+    padding: 0 14px;
+    font-size: 15px;
+}
+
+/* PILLS */
+.pill-check {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select:none;
+}
+
+.pill-check span {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 15px;
+    transition: 0.25s;
+    cursor: pointer;
+}
+
+.pill-check input {
+    display:none;
+}
+
+.pill-check input:checked + span {
+    background: linear-gradient(90deg,#ff7bb2,#ff9a7f);
+    color: #fff;
+    border-color: transparent;
+}
+
+.pill-grid {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 12px;
+}
+
+.pill-check-row {
+    margin-bottom: 12px;
+}
+
+.submit-holder {
+    margin-top: 40px;
+}
+
+.submit-btn {
+    width: 100%;
+    background: linear-gradient(90deg,#ff7bb2,#ff9a7f);
+    border:none;
+    border-radius: 14px;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: 700;
+    color:#fff;
+    cursor:pointer;
+    box-shadow: 0 10px 30px rgba(255,120,170,0.35);
+    transition:0.25s;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+}

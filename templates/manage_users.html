@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Gebruikers Beheer{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1>Gebruikers Beheer</h1>
+</div>
+
+<!-- FLASH MESSAGES -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+
+<div class="users-wrapper">
+
+
+    <!-- ------------------- ADD NEW USER ------------------- -->
+    <div class="user-card">
+        <h2>Nieuwe Gebruiker</h2>
+
+        <form method="POST" action="{{ url_for('manage_users') }}">
+            <input type="hidden" name="action" value="add">
+
+            <label>Gebruikersnaam</label>
+            <input type="text" name="username" class="fin-input" required>
+
+            <label>Wachtwoord</label>
+            <input type="password" name="password" class="fin-input" required>
+
+            <label>Rol</label>
+            <input type="text" name="role" class="fin-input" placeholder="bijv: admin / finance / viewer" required>
+
+            <label>Email</label>
+            <input type="email" name="email" class="fin-input" required>
+
+            <button type="submit" class="btn-primary" style="margin-top: 15px;">
+                Toevoegen
+            </button>
+        </form>
+    </div>
+
+
+
+    <!-- ------------------- USER LIST ------------------- -->
+    <div class="user-list-card">
+        <h2>Bestaande Gebruikers</h2>
+
+        <table class="fin-table">
+            <thead>
+                <tr>
+                    <th>Gebruikersnaam</th>
+                    <th>Rol</th>
+                    <th>Nieuw Wachtwoord</th>
+                    <th>Opslaan</th>
+                    <th>Verwijderen</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for u in users %}
+                <tr>
+                    <!-- Username -->
+                    <td>{{ u.username }}</td>
+
+                    <!-- Role Update -->
+                    <td>
+                        <form method="POST" action="{{ url_for('manage_users') }}">
+                            <input type="hidden" name="action" value="update_role">
+                            <input type="hidden" name="user_id" value="{{ u.id }}">
+
+                            <input type="text" name="role" class="fin-input small"
+                                   value="{{ u.role }}">
+                    </td>
+
+                    <!-- Password Update -->
+                    <td>
+                            <input type="password" name="new_password" class="fin-input small"
+                                   placeholder="Nieuw wachtwoord">
+                    </td>
+
+                    <!-- Save buttons (role + pw) -->
+                    <td>
+                            <button type="submit" class="btn-primary-small">Opslaan</button>
+                        </form>
+                    </td>
+
+                    <!-- Delete -->
+                    <td>
+                        <form method="POST" action="{{ url_for('manage_users') }}" 
+                              onsubmit="return confirm('Weet u zeker dat u deze gebruiker wilt verwijderen?');">
+
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="user_id" value="{{ u.id }}">
+
+                            <button type="submit" class="del-btn">✕</button>
+                        </form>
+                    </td>
+
+                </tr>
+            {% endfor %}
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

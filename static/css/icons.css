@@ -1,0 +1,21 @@
+/* ============================================================
+   PREMIUM FINTECH ICON SET (Linear / Stripe style)
+   Used for sidebar & dashboard
+=============================================================== */
+
+.icon {
+    width: 26px;
+    height: 26px;
+    stroke-width: 2.2;
+    stroke: currentColor;
+    fill: none;
+    display: block;
+    opacity: 0.85;
+    transition: 0.2s;
+}
+
+.side-item:hover .icon,
+.side-item.active .icon {
+    opacity: 1;
+    stroke-width: 2.4;
+}

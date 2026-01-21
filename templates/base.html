@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fintech.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+
+<body class="page-{{ request.endpoint }}">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+    <!-- LOGO -->
+    <div class="sidebar-logo">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo">
+    </div>
+
+    <!-- MENU ITEMS -->
+    <a href="{{ url_for('dashboard') }}" class="side-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+        <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm10 8h8v-6h-8v6zm0-8h8V3h-8v10zM3 21h8v-6H3v6z"/></svg>
+    </a>
+
+    <a href="{{ url_for('view_transactions') }}" class="side-item {% if request.endpoint == 'view_transactions' %}active{% endif %}">
+        <svg viewBox="0 0 24 24"><path d="M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z"/></svg>
+    </a>
+
+    <a href="{{ url_for('upload_page') }}" class="side-item {% if request.endpoint == 'upload_page' %}active{% endif %}">
+        <svg viewBox="0 0 24 24"><path d="M12 2l4 4h-3v7h-2V6H8l4-4zm-7 18v-2h14v2H5z"/></svg>
+    </a>
+
+    <a href="{{ url_for('report_options') }}" class="side-item {% if request.endpoint == 'report_options' %}active{% endif %}">
+        <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm10 2v6h6V5h-6zm-2 0H5v6h6V5zm2 8v6h6v-6h-6zm-2 0H5v6h6v-6z"/></svg>
+    </a>
+
+    {% if current_user.role == 'admin' %}
+    <a href="{{ url_for('manage_users') }}" class="side-item {% if request.endpoint == 'manage_users' %}active{% endif %}">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/></svg>
+    </a>
+
+    <a href="{{ url_for('manage_categories') }}" class="side-item {% if request.endpoint == 'manage_categories' %}active{% endif %}">
+        <svg viewBox="0 0 24 24"><path d="M3 17h4v4H3v-4zm0-7h4v4H3V10zm0-7h4v4H3V3zm7 14h11v4H10v-4zm0-7h11v4H10V10zm0-7h11v4H10V3z"/></svg>
+    </a>
+    {% endif %}
+
+</div>
+
+
+<!-- TOP NAVBAR -->
+<div class="top-nav">
+    
+
+    <!-- Account Switcher -->
+    <form method="GET" action="{{ url_for('dashboard') }}" class="account-switch">
+        <select name="account_filter" onchange="this.form.submit()" class="account-select">
+            <option value="ALL" {% if account_filter=='ALL' %}selected{% endif %}>ALL</option>
+            <option value="ANTWERPEN" {% if account_filter=='ANTWERPEN' %}selected{% endif %}>Antwerpen</option>
+            <option value="GENT" {% if account_filter=='GENT' %}selected{% endif %}>Gent</option>
+        </select>
+    </form>
+
+    <span class="top-user">{{ current_user.username }}</span>
+    <a href="{{ url_for('logout') }}" class="logout-btn">Uitloggen</a>
+</div>
+
+<!-- MAIN PAGE CONTENT -->
+<div class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, msg in messages %}
+                <div class="flash-{{ category }}">{{ msg }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}
+    {% endblock %}
+</div>
+
+</html>

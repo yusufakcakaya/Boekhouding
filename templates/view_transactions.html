@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Transacties Bekijken & Bewerken{% endblock %}
+
+{% block content %}
+
+<div class="transactions-page">
+<div class="content-wrapper">
+<div class="page-container">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <h1>Transacties Bekijken & Bewerken</h1>
+    </div>
+
+    <!-- FILTER BAR -->
+    <form method="GET" action="{{ url_for('view_transactions') }}" class="filter-bar">
+
+        <div class="filter-item">
+            <label>Zoeken</label>
+            <input type="text"
+                   name="search"
+                   class="fin-input"
+                   placeholder="Zoek naar naam of beschrijving..."
+                   value="{{ search_term or '' }}">
+        </div>
+
+        <div class="filter-item">
+            <label>Campus Filter</label>
+            <select name="campus_filter" class="fin-select">
+                <option value="ALL" {% if campus_filter=='ALL' %}selected{% endif %}>ALLE</option>
+                <option value="NONE" {% if campus_filter=='NONE' %}selected{% endif %}>Niet-verwerkt</option>
+
+                {% for code, desc in campus_options.items() %}
+                <option value="{{ code }}" {% if campus_filter==code %}selected{% endif %}>
+                    {{ code }} - {{ desc }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-item">
+            <label>Upload Batch</label>
+            <select name="batch_filter" class="fin-select">
+                <option value="ALL" {% if batch_filter=='ALL' %}selected{% endif %}>Alle Batches</option>
+
+                {% for batch in upload_batches %}
+                <option value="{{ batch }}" {% if batch_filter==batch %}selected{% endif %}>
+                    {{ batch }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-buttons">
+            <button type="submit" class="btn-primary-small">Filter</button>
+            <a href="{{ url_for('view_transactions',
+                                account_filter=account_filter,
+                                search='',
+                                campus_filter='ALL',
+                                batch_filter='ALL') }}"
+               class="btn-secondary-small">
+                Reset
+            </a>
+        </div>
+
+    </form>
+
+    <!-- SAVE FORM -->
+    <form method="POST"
+          action="{{ url_for('view_transactions',
+                             account_filter=account_filter,
+                             search=search_term,
+                             campus_filter=campus_filter,
+                             batch_filter=batch_filter) }}"
+          class="transaction-form">
+
+        <div class="table-card">
+            <table class="fin-table">
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Tegenpartij</th>
+                        <th>Omschrijving</th>
+                        <th>Bedrag</th>
+                        <th>Campus</th>
+                        <th>Categorie</th>
+                        <th>Actie</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for tx in transactions %}
+                    <tr>
+                        <td>{{ tx.BookingDate }}</td>
+
+                        <td>
+                            <span class="small-muted">ID: {{ tx.ID }}</span><br>
+                            {{ tx.CounterpartyName }}
+                        </td>
+
+                        <td>{{ tx.Description }}</td>
+
+                        <td class="{{ 'amount-positive' if tx.Amount|float >= 0 else 'amount-negative' }}">
+                            {{ tx.Amount }}
+                        </td>
+
+                        <td>
+                            <input type="text"
+                                   name="campus_code_{{ tx.ID }}"
+                                   value="{{ tx.CampusCode or '' }}"
+                                   class="fin-input small"
+                                   list="campus_list">
+                        </td>
+
+                        <td>
+                            <select name="category_code_{{ tx.ID }}" class="fin-select small">
+                                <option value="">Kies...</option>
+                                {% for code, desc in category_options.items() %}
+                                    <option value="{{ code }}"
+                                        {% if tx.CategoryCode == code %}selected{% endif %}>
+                                        {{ code }} — {{ desc }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+
+                        <td>
+                            <button type="button"
+                                    class="del-btn"
+                                    onclick="confirmDelete('{{ tx.ID }}')">✕</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="save-bar">
+            <button type="submit" name="save_changes" class="btn-primary">
+                Wijzigingen Opslaan
+            </button>
+        </div>
+
+    </form>
+
+    <datalist id="campus_list">
+        {% for code in campuses_list %}
+        <option value="{{ code }}">
+        {% endfor %}
+    </datalist>
+
+</div>
+</div>
+</div>
+
+<script>
+function confirmDelete(txId) {
+    if (confirm("Weet u zeker dat u deze transactie wilt verwijderen?")) {
+        fetch("{{ url_for('delete_transaction') }}", {
+            method: "POST",
+            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+            body: "tx_id=" + txId
+        }).then(r => r.ok ? location.reload() : alert("Fout bij verwijderen."));
+    }
+}
+</script>
+
+{% endblock %}

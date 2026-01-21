@@ -1,0 +1,103 @@
+/* FLASH */
+.flash {
+    padding:14px 18px;
+    border-radius:12px;
+    margin-bottom:20px;
+    font-size:14px;
+    font-weight:600;
+}
+.flash-success { background:#e3ffe9; color:#0a8a34; }
+.flash-error { background:#ffe1e1; color:#c21d1d; }
+
+/* GRID */
+.categories-grid {
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:25px;
+}
+
+/* CARD */
+.cat-card {
+    background:#fff;
+    padding:25px;
+    border-radius:22px;
+    box-shadow:0 12px 30px rgba(0,0,0,0.07);
+}
+
+.cat-title {
+    font-size:20px;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+/* ADD FORM */
+.add-form {
+    display:grid;
+    grid-template-columns: 120px 1fr 50px;
+    gap:12px;
+    margin-bottom:20px;
+}
+
+.input-field {
+    border:1px solid #ddd;
+    border-radius:12px;
+    padding:10px;
+    font-size:14px;
+}
+
+.btn-add {
+    background:#ff8bb8;
+    border:none;
+    color:white;
+    border-radius:12px;
+    font-size:22px;
+    cursor:pointer;
+    box-shadow:0 6px 20px rgba(255,120,170,0.35);
+}
+
+/* CODE LIST */
+.codes-list {
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.code-item {
+    display:grid;
+    grid-template-columns: 80px 1fr 40px;
+    padding:10px;
+    background:#fafafa;
+    border-radius:14px;
+    align-items:center;
+    border:1px solid #eee;
+}
+
+.code-badge {
+    background:#ffe6f0;
+    color:#d43b7e;
+    padding:6px 12px;
+    border-radius:10px;
+    font-weight:700;
+    text-align:center;
+}
+
+.code-desc {
+    font-size:14px;
+    color:#555;
+}
+
+/* DELETE */
+.delete-btn {
+    background:#ffd2d2;
+    border:none;
+    color:#b40000;
+    font-size:18px;
+    border-radius:10px;
+    cursor:pointer;
+    width:36px;
+    height:36px;
+}
+
+.delete-btn:hover {
+    background:#ffb7b7;
+}

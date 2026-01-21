@@ -1,0 +1,500 @@
+/* ========================================================= */
+/*                  GLOBAL DEFAULTS                          */
+/* ========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background: #f5f6fa;
+    color: #333;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ========================================================= */
+/*                       SIDEBAR                             */
+/* ========================================================= */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 110px;
+    height: 100vh;
+    background: #ffffff;
+    padding-top: 40px;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1000;
+}
+
+.sidebar-logo img {
+    width: 60px;
+    margin-bottom: 45px;
+}
+
+.side-item {
+    width: 70px;
+    height: 70px;
+    border-radius: 18px;
+    background: #fff;
+    margin: 12px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.25s;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+}
+
+.side-item:hover,
+.side-item.active {
+    background: #ff8bb8;
+    color: white;
+    transform: translateY(-3px);
+}
+
+.side-item svg {
+    width: 32px;
+    height: 32px;
+    fill: currentColor;
+}
+
+/* ========================================================= */
+/*                     TOP NAVBAR (GLOBAL)                   */
+/* ========================================================= */
+
+.top-nav {
+    position: fixed;
+    top: 20px;
+    right: 40px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    z-index: 9999 !important;
+}
+
+.account-select {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.logout-btn {
+    padding: 10px 18px;
+    background: #ff5fa2;
+    border-radius: 14px;
+    color: white;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    background: #ff3c8a;
+}
+
+/* ========================================================= */
+/*               MAIN CONTENT WRAPPER (GLOBAL)               */
+/* ========================================================= */
+
+.content {
+    margin-left: 110px;   /* sidebar genişliği */
+    padding: 60px 60px;
+    width: calc(100% - 110px);
+}
+
+/* ========================================================= */
+/*                  FLASH MESSAGES                           */
+/* ========================================================= */
+
+.flash-success {
+    padding: 14px 20px;
+    border-radius: 12px;
+    background: #e3ffe9;
+    color: #0a8a34;
+    margin-bottom: 20px;
+}
+
+.flash-error {
+    padding: 14px 20px;
+    border-radius: 12px;
+    background: #ffe3e3;
+    color: #c91919;
+    margin-bottom: 20px;
+}
+
+/* ========================================================= */
+/*                     PAGE TITLES                           */
+/* ========================================================= */
+
+.page-header h1 {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+/* ========================================================= */
+/*                  FILTER BAR (GLOBAL)                      */
+/* ========================================================= */
+
+.filter-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 22px;
+    flex-wrap: wrap;
+    background: #fff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    margin-bottom: 25px;
+    max-width: 1350px;
+}
+
+.filter-item label {
+    font-size: 13px;
+    opacity: 0.7;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.fin-input,
+.fin-select {
+    padding: 10px 14px;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-size: 14px;
+}
+
+.fin-input:focus,
+.fin-select:focus {
+    border-color: #ff76ad;
+    box-shadow: 0 0 0 3px rgba(255,118,173,0.3);
+    outline: none;
+}
+
+.btn-primary-small {
+    background: #ff76ad;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-secondary-small {
+    padding: 12px 20px;
+    border-radius: 12px;
+    background: #dfe6f1;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+}
+
+/* ========================================================= */
+/*               TRANSACTIONS TABLE STYLE                    */
+/* ========================================================= */
+
+.table-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    max-width: 1350px;
+    margin: 0 auto;
+}
+
+.fin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+}
+
+.fin-table thead th {
+    opacity: 0.7;
+    font-size: 14px;
+    font-weight: 700;
+    padding-bottom: 8px;
+}
+
+.fin-table tbody tr {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.fin-table tbody td {
+    padding: 18px;
+    font-size: 15px;
+}
+
+.amount-positive {
+    color: #1dbf73;
+    font-weight: 700;
+}
+
+.amount-negative {
+    color: #ff4f6d;
+    font-weight: 700;
+}
+
+.del-btn {
+    width: 34px;
+    height: 34px;
+    background: #ffe5eb;
+    color: #ff4f6d;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.del-btn:hover {
+    background: #ff4f6d;
+    color: white;
+}
+
+/* ========================================================= */
+/*                    DASHBOARD CARDS                        */
+/* ========================================================= */
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 22px;
+    margin-bottom: 30px;
+}
+
+.summary-card {
+    border-radius: 22px;
+    padding: 28px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+}
+
+.gradient-pink {
+    background: linear-gradient(90deg,#ff7bb2,#ff9a7f);
+    color: #fff;
+}
+
+.white-shadow {
+    background: #fff;
+}
+
+/* Charts */
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 22px;
+    margin-bottom: 40px;
+}
+
+.chart-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+}
+
+.no-data {
+    padding: 40px;
+    text-align: center;
+    color: #aaa;
+}
+
+/* ========================================================= */
+/*               USERS / CATEGORY PANELS                     */
+/* ========================================================= */
+
+.admin-card {
+    background: #fff;
+    padding: 35px;
+    border-radius: 22px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    max-width: 600px;
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 40px;
+    max-width: 1200px;
+}
+
+/* ========================================================= */
+/*                        UPLOAD PAGE                        */
+/* ========================================================= */
+
+.upload-card {
+    background: #fff;
+    padding: 40px;
+    border-radius: 28px;
+    box-shadow: 0 15px 45px rgba(0,0,0,0.08);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.dropzone {
+    border: 2px dashed #ffb6d5;
+    padding: 50px;
+    border-radius: 22px;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* ========================================================= */
+/*                CATEGORY BADGES                            */
+/* ========================================================= */
+
+.badge {
+    padding: 8px 14px;
+    background: #ffe3f0;
+    border-radius: 12px;
+    font-weight: 700;
+    display: inline-block;
+}
+/* ========================================================= */
+/*    VIEW TRANSACTIONS — COLUMN WIDTH OPTIMIZATION          */
+/* ========================================================= */
+
+.fin-table tbody td {
+    padding: 12px 14px;        /* daha sıkı görünüm */
+    font-size: 14px;
+}
+
+/* DATUM alanı daha geniş */
+.fin-table td:nth-child(1) {
+    width: 120px;
+}
+
+/* TEGENPARTIJ alanı */
+.fin-table td:nth-child(2) {
+    width: 260px;
+}
+
+/* OMSCHRIJVING alanı */
+.fin-table td:nth-child(3) {
+    width: 220px;
+}
+
+/* BEDRAG alanı daha dar */
+.fin-table td:nth-child(4) {
+    width: 80px;
+}
+
+/* CAMPUS alanı çok daha dar */
+.fin-table td:nth-child(5) input {
+    width: 80px !important;   /* yarı yarıya küçülttüm */
+    text-align: center;
+}
+
+/* CATEGORIE kutusu daha dar */
+.fin-table td:nth-child(6) select {
+    width: 150px !important;
+}
+
+/* DELETE BUTTON alanı daralsın */
+.fin-table td:nth-child(7) {
+    width: 60px;
+}
+
+/* SATIR YÜKSEKLİĞİNİ AZALT */
+.fin-table tbody tr {
+    height: 65px;
+}
+
+/* -------------------------------------------------------- */
+/* FIX: Reduce space between "Categorie" and Delete button  */
+/* Expand Tegenpartij + Omschrijving                        */
+/* -------------------------------------------------------- */
+
+/* Datum */
+.fin-table td:nth-child(1) {
+    width: 110px;
+}
+
+/* Tegenpartij — biraz daha geniş */
+.fin-table td:nth-child(2) {
+    width: 320px;      /* +60px artırıldı */
+}
+
+/* Omschrijving — biraz daha geniş */
+.fin-table td:nth-child(3) {
+    width: 260px;      /* +40px artırıldı */
+}
+
+/* Bedrag */
+.fin-table td:nth-child(4) {
+    width: 70px;
+}
+
+/* Campus */
+.fin-table td:nth-child(5) input {
+    width: 75px !important;
+}
+
+/* Categorie */
+.fin-table td:nth-child(6) select {
+    width: 140px !important;   /* biraz daha daralttım */
+}
+
+/* Actie (X buton alanı) */
+.fin-table td:nth-child(7) {
+    width: 45px;   /* alan daraltıldı */
+}
+
+
+/* ---------------------------------------------------- */
+/* REPORT PAGE CARD WIDENING + BETTER LAYOUT            */
+/* ---------------------------------------------------- */
+
+/* Ana kart: genişlet, ortala */
+.report-card,
+.report-container,
+.report-wrapper {
+    max-width: 1300px !important;   /* eski 900–1100 ise büyüttük */
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+/* Kart içi padding daha ferah olsun */
+.report-card {
+    padding: 40px 50px !important;
+}
+
+/* Başlık alanı hafif geniş durması için */
+.report-card h1,
+.report-card .page-title {
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+/* 2 kolonlu layout – filtre satırlarını hizala */
+.report-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px 50px;
+}
+
+/* Buton satırları daha geniş yayılsın */
+.campus-pill,
+.category-pill {
+    min-width: 80px;
+    font-size: 15px;
+}
+
+/* Tarih inputlarını genişlet */
+.report-card input[type="date"],
+.report-card input[type="text"] {
+    width: 100% !important;
+    max-width: 450px !important;
+}

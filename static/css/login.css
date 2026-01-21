@@ -1,0 +1,126 @@
+body {
+    margin:0;
+    height:100vh;
+    font-family:'Inter',sans-serif;
+    background: linear-gradient(135deg, #ff7bb2 0%, #ff9a7f 100%);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* CONTAINER */
+.login-container {
+    background:#ffffff;
+    width:900px;
+    height:520px;
+    border-radius:28px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.15);
+    display:flex;
+    overflow:hidden;
+}
+
+/* LEFT SIDE */
+.left-side {
+    width:45%;
+    background:linear-gradient(135deg,#ff7bb2,#ff9a7f);
+    color:white;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.big-logo {
+    width:110px;
+    height:110px;
+    border-radius:50%;
+    margin-bottom:18px;
+}
+
+.brand-title {
+    font-size:30px;
+    font-weight:700;
+    margin-bottom:6px;
+}
+
+.brand-sub {
+    font-size:15px;
+    opacity:0.9;
+}
+
+/* LOGIN CARD */
+.login-card {
+    width:55%;
+    padding:50px 60px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.login-title {
+    font-size:32px;
+    font-weight:700;
+    margin-bottom:5px;
+}
+
+.login-sub {
+    color:#777;
+    margin-bottom:25px;
+}
+
+.field-label {
+    font-size:13px;
+    margin-bottom:6px;
+    font-weight:600;
+    color:#444;
+}
+
+.input-field {
+    width:100%;
+    height:45px;
+    border-radius:12px;
+    border:1px solid #ddd;
+    padding:0 12px;
+    margin-bottom:18px;
+    font-size:14px;
+}
+
+/* LOGIN BUTTON */
+.login-btn {
+    width:100%;
+    height:48px;
+    border:none;
+    border-radius:14px;
+    background:linear-gradient(90deg,#ff7bb2,#ff9a7f);
+    color:white;
+    font-size:17px;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 8px 30px rgba(255,120,170,0.35);
+}
+
+.alert {
+    background:#ffe1e1;
+    color:#b30000;
+    padding:12px 15px;
+    border-radius:12px;
+    margin-bottom:15px;
+    font-size:14px;
+}
+
+.forgot-wrapper {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.forgot-link {
+    color: #4a72ff;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
