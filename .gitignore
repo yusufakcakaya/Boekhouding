@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual env
+.venv/
+
+# Environment
+.env
+
+# DATA (ÇOK KRİTİK)
+data/
+*.db
