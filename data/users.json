@@ -1,0 +1,15 @@
+[
+    {
+        "id": 1,
+        "username": "admin",
+        "password_hash": "pbkdf2:sha256:600000$HjwyjziFDRNSE49F$b1fada81b54144ac6fd25384d2e01603755c26c573451ffc1e3e46e9b9fc6201",
+        "role": "admin"
+    },
+    {
+        "id": "577cc241-47fb-4098-8bc5-b97f12de1477",
+        "username": "yusuf",
+        "password_hash": "pbkdf2:sha256:1000000$EVFfPfXAFAo1W38g$fd82fdefa7255ccb28a41acc0d506edfff79b234e3a84febc14fc6b0eeea8757",
+        "role": "yusuf",
+        "email": "yusufakcakaya14@gmail.com"
+    }
+]
