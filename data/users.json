@@ -9,7 +9,14 @@
         "id": "577cc241-47fb-4098-8bc5-b97f12de1477",
         "username": "yusuf",
         "password_hash": "pbkdf2:sha256:1000000$EVFfPfXAFAo1W38g$fd82fdefa7255ccb28a41acc0d506edfff79b234e3a84febc14fc6b0eeea8757",
-        "role": "yusuf",
+        "role": "campus",
         "email": "yusufakcakaya14@gmail.com"
+    },
+    {
+        "id": "e5e255ad-0c76-49f0-a46b-cb9cceeae6c0",
+        "username": "Boekhouding",
+        "password_hash": "pbkdf2:sha256:1000000$r6KJeMd1M0ZYvbA0$372f2b473043774a74087d3ebc37952120a10e623854ea800cb69195c7513a09",
+        "role": "Boekhouding",
+        "email": "yusufakcakaya.be@gmail.com"
     }
 ]

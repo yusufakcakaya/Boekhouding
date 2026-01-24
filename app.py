@@ -85,67 +85,44 @@ MASTER_CODE = "Lucerna2024!"
 # ============================================
 
 
+def parse_campus_string(raw):
+    if not raw or raw.strip() == "" or raw.upper() == "NONE":
+        return []   # hiçbir campus → işlem yapma
 
-def parse_campus_string(raw: str):
-    if not raw:
-        raise SplitError("Campus veld is leeg.")
-
-    # Normalize input
     text = raw.upper().replace(",", " ").strip()
     tokens = [t for t in text.split() if t.strip()]
 
     result = []
-    total_percent = 0
-    percent_items = []
-    plain_items = []
+    has_percent = False
 
     for t in tokens:
 
-        # ---- %40H - 40H - H40 - H%40 ----
+        # %40H veya H40
         m = re.match(r"%?(\d+)%?([A-Z]+)$", t)
         if m:
             percent = int(m.group(1))
             code = m.group(2)
-
             if code not in VALID_CODES:
-                raise SplitError(f"Ongeldige campuscode: '{code}'")
-
-            total_percent += percent
-            percent_items.append({"code": code, "percent": percent})
+                continue
+            result.append({"code": code, "percent": percent})
+            has_percent = True
             continue
 
-        # ---- Yüzdesiz kampüs (H, D, JR, K) ----
+        # Sadece H , D , JR , K
         if t in VALID_CODES:
-            plain_items.append({"code": t})
+            result.append({"code": t, "percent": None})
             continue
 
-        raise SplitError(f"Ongeldig campus token: '{t}'")
+    if not result:
+        return []    # hiçbir geçerli kampus yok → sorun yok
 
-    # ---- Eğer yüzde %100'ü geçerse hata ----
-    if total_percent > 100:
-        raise SplitError(f"Percentages som {total_percent}, moet ≤ 100 zijn.")
+    # yüzdesiz ise eşit dağıt
+    if not has_percent:
+        eq = round(100 / len(result), 5)
+        for r in result:
+            r["percent"] = eq
 
-    # ---- Yüzde yok → hepsini eşit dağıt ----
-    if total_percent == 0:
-        count = len(plain_items)
-        if count == 0:
-            raise SplitError("Geen geldige campuscodes gevonden.")
-        equal_percent = round(100 / count, 5)
-        return [{"code": p["code"], "percent": equal_percent} for p in plain_items]
-
-    # ---- Eğer bazı yüzdeler varsa → kalanını yüzdesizlere eşit dağıt ----
-    remaining = 100 - total_percent
-
-    if plain_items:
-        per_plain = round(remaining / len(plain_items), 5)
-        for p in plain_items:
-            percent_items.append({"code": p["code"], "percent": per_plain})
-    else:
-        # Tüm yüzdeler verilmiş → tam 100 olmalı
-        if total_percent != 100:
-            raise SplitError(f"Percentages moeten optellen tot 100. Nu: {total_percent}")
-
-    return percent_items
+    return result
 
 
 def get_latest_date(df):
@@ -230,11 +207,7 @@ def distribute_amount(amount: float, parsed):
         })
     return rows
 
-def save_single_transaction_df(tx_id, parsed_campus, category):
-    """
-    campus_raw → kullanıcı girdisi (örn: 'H %10D')
-    category   → kategori kodu
-    """
+def save_single_transaction_df(tx_id, parsed, category):
     df = load_transactions()
 
     row = df[df["ID"] == tx_id].copy()
@@ -243,27 +216,53 @@ def save_single_transaction_df(tx_id, parsed_campus, category):
 
     base_amount = float(row.iloc[0]["Amount"])
 
-    # Eski satırı sil
+    # eski değerleri sakla
+    old_campus   = row.iloc[0]["CampusCode"]
+    old_category = row.iloc[0]["CategoryCode"]
+
+    # eski kaydı sil
     df = df[df["ID"] != tx_id]
 
-   
-
-    # 🔥 2) Tutarı yüzdelere göre dağıt
-    distributed_rows = distribute_amount(base_amount, parsed_campus)
-
-    # 🔥 3) Yeni satırlar oluştur
-    new_rows = []
-    for entry in distributed_rows:
+    # ----------------------------------
+    # 1️⃣ HİÇ CAMPUS DEĞİŞMEDİ
+    # ----------------------------------
+    if parsed is None:
         r = row.iloc[0].copy()
         r["ID"] = str(uuid.uuid4())
-        r["CampusCode"] = entry["code"]
-        r["Amount"] = entry["amount"]
-        r["CategoryCode"] = category
+        r["CampusCode"] = old_campus
+        r["CategoryCode"] = category if category is not None else old_category
+        df = pd.concat([df, pd.DataFrame([r])], ignore_index=True)
+        save_transactions(df)
+        return
+
+    # ----------------------------------
+    # 2️⃣ CAMPUS TEMİZLENDİ (tek satır)
+    # ----------------------------------
+    if parsed == []:
+        r = row.iloc[0].copy()
+        r["ID"] = str(uuid.uuid4())
+        r["CampusCode"] = None
+        r["CategoryCode"] = category if category is not None else old_category
+        df = pd.concat([df, pd.DataFrame([r])], ignore_index=True)
+        save_transactions(df)
+        return
+
+    # ----------------------------------
+    # 3️⃣ CAMPUS DAĞITILACAK
+    # ----------------------------------
+    distributed_rows = distribute_amount(base_amount, parsed)
+
+    new_rows = []
+    for part in distributed_rows:
+        r = row.iloc[0].copy()
+        r["ID"] = str(uuid.uuid4())
+        r["CampusCode"] = part["code"]
+        r["Amount"] = part["amount"]
+        r["CategoryCode"] = category if category is not None else old_category
         new_rows.append(r)
 
     df = pd.concat([df, pd.DataFrame(new_rows)], ignore_index=True)
     save_transactions(df)
-
 
 # ============================================
 # LOGIN MANAGER
@@ -543,24 +542,42 @@ DELIMITER = ";"
 
 def clean_and_process_csv(filepath, account_name):
     try:
-        df = pd.read_csv(filepath, skiprows=ROWS_TO_SKIP_HEADER, delimiter=DELIMITER)
+        # Bazı bankalar UTF-8 değil → Latin1 ile deneyelim
+        try:
+            df = pd.read_csv(filepath, skiprows=ROWS_TO_SKIP_HEADER, delimiter=DELIMITER, encoding="utf-8")
+        except UnicodeDecodeError:
+            df = pd.read_csv(filepath, skiprows=ROWS_TO_SKIP_HEADER, delimiter=DELIMITER, encoding="latin1")
 
+        # Kolon isimlerini eşleştir
         df.rename(columns=BANK_COLUMNS, inplace=True)
 
+        # ---- DATE FIX ----
         df["BookingDate"] = pd.to_datetime(
             df["BookingDate"], dayfirst=True, errors="coerce"
         ).dt.strftime("%d-%m-%Y")
 
-        df["Amount"] = (
-            df["Amount"].astype(str)
-            .str.replace(".", "", regex=False)
-            .str.replace(",", ".", regex=False)
-            .astype(float)
+        # ---- AMOUNT FIX (EN ÖNEMLİ KISIM) ----
+        raw_amount = df["Amount"].astype(str).str.strip()
+
+        # 1) Boşlukları sil
+        raw_amount = raw_amount.str.replace(" ", "", regex=False)
+
+        # 2) Avrupa formatını normalize et
+        raw_amount = raw_amount.str.replace(".", "", regex=False)   # Binlik ayracı sil
+        raw_amount = raw_amount.str.replace(",", ".", regex=False)  # Virgülü noktaya çevir
+
+        # 3) 204,90- → -204.90 (eksi işareti sona yazılan bankalar)
+        raw_amount = raw_amount.apply(
+            lambda v: "-" + v[:-1] if isinstance(v, str) and v.endswith("-") else v
         )
-        df["ID"] = [str(uuid.uuid4()) for _ in range(len(df))]
+
+        # 4) Float'a çevir
+        df["Amount"] = raw_amount.astype(float)
+
+        # ---- EXTRA KOLONLAR ----
         df["AccountName"] = account_name
-        df["CampusCode"] = ""
-        df["CategoryCode"] = ""
+        df["CampusCode"] = ""       # Sonradan kullanıcı girecek
+        df["CategoryCode"] = ""     # Sonradan kullanıcı girecek
         df["UploadTimestamp"] = datetime.utcnow().isoformat()
 
         return None, df.to_dict("records")
@@ -587,56 +604,77 @@ def upload_page():
         file = request.files["file"]
         campus_loc = request.form.get("campus_location", "").upper()
 
+        if file.filename == "":
+            flash("Geen bestand gekozen.", "error")
+            return redirect(url_for("upload_page"))
+
         if not file.filename.endswith(".csv"):
             flash("Alleen CSV toegestaan.", "error")
             return redirect(url_for("upload_page"))
 
-        account_name = f"{campus_loc.capitalize()} - Bankrekening"
-
+        # Geçici kaydet
         temp_file = os.path.join(DATA_DIR, "temp_upload.csv")
         file.save(temp_file)
 
-        err, processed = clean_and_process_csv(temp_file, account_name)
+        # CSV yükle (encoding fallback ile)
+        try:
+            df = pd.read_csv(
+                temp_file,
+                skiprows=ROWS_TO_SKIP_HEADER,
+                delimiter=DELIMITER,
+                encoding="utf-8"
+            )
+        except Exception:
+            df = pd.read_csv(
+                temp_file,
+                skiprows=ROWS_TO_SKIP_HEADER,
+                delimiter=DELIMITER,
+                encoding="latin-1"
+            )
+
         os.remove(temp_file)
 
-        if err:
-            flash(err, "error")
-            return redirect(url_for("upload_page"))
+        # Kolon isimlerini düzelt
+        df.rename(columns=BANK_COLUMNS, inplace=True)
 
-        df_new = pd.DataFrame(processed)
-        if df_new.empty:
-            flash("Geen nieuwe transacties.", "warning")
-            return redirect(url_for("upload_page"))
+        # Tarihi datetime'a çevir
+        df["BookingDate"] = pd.to_datetime(
+            df["BookingDate"], dayfirst=True, errors="coerce"
+        ).dt.strftime("%d-%m-%Y")
 
-        # duplicate temizleme
+        # Miktar dönüşümü: "1.234,56" → 1234.56
+        df["Amount"] = (
+            df["Amount"].astype(str)
+            .str.replace(".", "", regex=False)
+            .str.replace(",", ".", regex=False)
+            .astype(float)
+        )
+
+        # Ek kolonlar
+        df["AccountName"] = f"{campus_loc.capitalize()} - Bankrekening"
+        df["CampusCode"] = ""
+        df["CategoryCode"] = ""
+        df["UploadTimestamp"] = datetime.utcnow().isoformat()
+
+        # ID ata
+        df["ID"] = [str(uuid.uuid4()) for _ in range(len(df))]
+
+        # 🔥 Yeni veriyi var olana ekle
         old = load_transactions()
-        if not old.empty:
-            old["uk"] = (
-                old["BookingDate"].astype(str)
-                + old["CounterpartyName"].astype(str)
-                + old["Amount"].astype(str)
-            )
+        combined = pd.concat([old, df], ignore_index=True)
 
-            df_new["uk"] = (
-                df_new["BookingDate"].astype(str)
-                + df_new["CounterpartyName"].astype(str)
-                + df_new["Amount"].astype(str)
-            )
+        # 🔥 Tarihe göre sıralama
+        combined["BookingDate_dt"] = pd.to_datetime(
+            combined["BookingDate"], dayfirst=True, errors="coerce"
+        )
+        combined.sort_values("BookingDate_dt", ascending=False, inplace=True)
+        combined.drop(columns=["BookingDate_dt"], inplace=True)
 
-            df_new = df_new[~df_new["uk"].isin(old["uk"])]
+        # Kaydet
+        save_transactions(combined)
 
-        if df_new.empty:
-            flash("Geen nieuwe transacties.", "warning")
-            return redirect(url_for("upload_page"))
-
-        df_new.drop(columns=["uk"], errors="ignore", inplace=True)
-
-        # yeni transactionları direkt kaydet
-        final_df = pd.concat([old, df_new], ignore_index=True)
-        save_transactions(final_df)
-
-        flash("Transacties succesvol geüpload!", "success")
-        return redirect(url_for("dashboard"))
+        flash("Bestand succesvol geüpload!", "success")
+        return redirect(url_for("view_transactions"))
 
     return render_template("upload.html", latest_date=latest_str)
 
@@ -659,7 +697,6 @@ def delete_transaction():
 # ============================================
 # VIEW TRANSACTIONS
 # ============================================
-
 @app.route("/view_transactions", methods=["GET", "POST"])
 @login_required
 def view_transactions():
@@ -672,6 +709,9 @@ def view_transactions():
     search         = request.args.get("search", "").strip()
     batch_filter   = request.args.get("batch_filter", "ALL")
 
+    # ---------------------------
+    # FILTERS
+    # ---------------------------
     filtered = filter_transactions_by_account(df.copy(), account_filter)
 
     if batch_filter != "ALL":
@@ -684,59 +724,69 @@ def view_transactions():
         filtered = filtered[
             filtered.apply(
                 lambda r:
-                    search.lower() in str(r["CounterpartyName"]).lower() or
-                    search.lower() in str(r["Description"]).lower(),
+                    search.lower() in str(r["CounterpartyName"]).lower()
+                    or search.lower() in str(r["Description"]).lower(),
                 axis=1
             )
         ]
 
-    filtered.sort_values("BookingDate", ascending=False, inplace=True)
-    transactions = filtered.to_dict("records")
+    # ---------------------------
+    # SORT BY DATE
+    # ---------------------------
+    filtered["BookingDate_dt"] = pd.to_datetime(
+        filtered["BookingDate"],
+        dayfirst=True,
+        errors="coerce"
+    )
+    filtered.sort_values("BookingDate_dt", ascending=False, inplace=True)
+    filtered.drop(columns=["BookingDate_dt"], inplace=True)
 
+    transactions = filtered.to_dict("records")
     upload_batches = sorted(df["UploadTimestamp"].dropna().unique(), reverse=True)
 
-    # ============================
-    #         POST — SAVE
-    # ============================
-
+    # ======================================================
+    # POST → SAVE CHANGES
+    # ======================================================
     if request.method == "POST":
         form = request.form
-
-        ids = [k.replace("campus_code_", "") for k in form if k.startswith("campus_code_")]
+        ids = form.getlist("tx_ids")
 
         for tx_id in ids:
+            raw_campus = form.get(f"campus_code_{tx_id}", "").strip()
+            raw_cat    = form.get(f"category_code_{tx_id}", "").strip()
 
-            # 1) RAW CAMPUS STRING
-            raw_campus = form.get(f"campus_code_{tx_id}", "")
-            raw_cat    = form.get(f"category_code_{tx_id}", "")
-
-            # Bazı browser'lar list döndürebilir → güvenli fix
             if isinstance(raw_campus, list):
                 raw_campus = " ".join(raw_campus)
 
-            raw_campus = raw_campus.strip()
+            # nothing changed
+            if raw_campus == "" and raw_cat == "":
+                continue
 
-            if raw_campus == "":
-                flash(f"Campuscode ontbreekt voor transactie {tx_id}", "error")
-                return redirect(request.url)
-
-            # 2) Parse → %40H %60D gibi formatları çöz
-            try:
+            parsed = None
+            if raw_campus != "":
                 parsed = parse_campus_string(raw_campus)
-            except SplitError as e:
-                flash(str(e), "error")
-                return redirect(request.url)
 
-            # 3) Kaydet
-            save_single_transaction_df(tx_id, parsed, raw_cat)
+            save_single_transaction_df(
+                tx_id,
+                parsed,
+                raw_cat if raw_cat != "" else None
+            )
 
         flash("Wijzigingen opgeslagen.", "success")
-        return redirect(request.url)
+        return redirect(
+            url_for(
+                "view_transactions",
+                account_filter=account_filter,
+                campus_filter=campus_filter,
+                search=search,
+                batch_filter=batch_filter
+            )
+         )
 
-    # ============================
-    #       PAGE RENDER
-    # ============================
 
+    # ---------------------------
+    # GET → RENDER PAGE
+    # ---------------------------
     return render_template(
         "view_transactions.html",
         transactions=transactions,
@@ -749,6 +799,7 @@ def view_transactions():
         category_options=categories_info["CategoryCodes"],
         upload_batches=upload_batches,
     )
+
 
 
 # ============================================
@@ -1148,19 +1199,8 @@ def generate_report():
     # ====================================================
     # CATEGORY DEFINITIONS
     # ====================================================
-    category_descriptions = {
-        "H":  "Huur",
-        "K":  "Kostgeld",
-        "A":  "Activiteit",
-        "O":  "Onderhoud",
-        "F":  "Fuel",
-        "JR": "Jean Ray Kostgeld",
-        "D":  "Deurne Kostgeld",
-        "EW": "Energie Water",
-        "EE": "Energie Elektriciteit",
-        "EG": "Energie Gas",
-        "M":  "Market"
-    }
+    categories_info = load_categories()
+    category_descriptions = categories_info.get("CategoryCodes", {})
 
     # ====================================================
     # SAFE MONTHLY GRAPH INDEX
@@ -1384,34 +1424,33 @@ def download_pdf():
     # ==========================
     # CATEGORY × CAMPUS MATRIX (FINAL FIXED)
     # ==========================
-    story.append(Paragraph("<b>Categorie × Campus Overzicht</b>", styles["Heading2"]))
+    # ==========================
+# CATEGORIE UITLEG (JSON = SINGLE SOURCE)
+# ==========================
+    categories_info = load_categories()
+    category_map = categories_info.get("CategoryCodes", {})
 
-    # Tüm kategoriler
-    all_categories = sorted(data["category_campus"].keys())
-
-    # Tablo başlığı
-    matrix = [["Categorie", "H", "D", "JR", "K"]]
-
-    # Her kategori için satır oluştur
-    for cat in all_categories:
-        row = [cat]
-        camp_data = data["category_campus"].get(cat, {})
-
-        for camp in ["H", "D", "JR", "K"]:
-            val = camp_data.get(camp, {}).get("Net", 0)
-            row.append(f"{val:.2f}")
-
-        matrix.append(row)
-
-    matrix_table = Table(matrix, colWidths=[4*cm, 2*cm, 2*cm, 2*cm, 2*cm])
-    matrix_table.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#CCE5FF")),
-        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
-        ("ALIGN", (1,1), (-1,-1), "CENTER"),
-        ("GRID", (0,0), (-1,-1), 0.5, colors.grey)
-    ]))
-    story.append(matrix_table)
     story.append(Spacer(1, 20))
+    story.append(Paragraph("<b>Categorie Uitleg</b>", styles["Heading2"]))
+
+    cat_table = [["Categorie", "Betekenis"]]
+
+    for code, desc in sorted(category_map.items()):
+        cat_table.append([code, desc])
+
+    story.append(
+        Table(
+            cat_table,
+            colWidths=[80, 400],
+            style=[
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+                ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("ALIGN", (0, 0), (0, -1), "CENTER"),
+            ],
+        )
+    )
+
 
     # ==========================
     # TRANSACTIONS (LAST PAGE)

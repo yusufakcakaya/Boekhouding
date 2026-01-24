@@ -42,7 +42,6 @@
             <label>Upload Batch</label>
             <select name="batch_filter" class="fin-select">
                 <option value="ALL" {% if batch_filter=='ALL' %}selected{% endif %}>Alle Batches</option>
-
                 {% for batch in upload_batches %}
                 <option value="{{ batch }}" {% if batch_filter==batch %}selected{% endif %}>
                     {{ batch }}
@@ -91,6 +90,9 @@
                 <tbody>
                 {% for tx in transactions %}
                     <tr>
+                        <!-- 🔴 KRİTİK: BACKEND İÇİN ID -->
+                        <input type="hidden" name="tx_ids" value="{{ tx.ID }}">
+
                         <td>{{ tx.BookingDate }}</td>
 
                         <td>
@@ -108,7 +110,7 @@
                             <input type="text"
                                    name="campus_code_{{ tx.ID }}"
                                    value="{{ tx.CampusCode or '' }}"
-                                   class="fin-input small"
+                                   class="fin-input small campus-input"
                                    list="campus_list">
                         </td>
 
@@ -136,7 +138,7 @@
         </div>
 
         <div class="save-bar">
-            <button type="submit" name="save_changes" class="btn-primary">
+            <button type="submit" class="btn-primary">
                 Wijzigingen Opslaan
             </button>
         </div>
@@ -163,6 +165,19 @@ function confirmDelete(txId) {
         }).then(r => r.ok ? location.reload() : alert("Fout bij verwijderen."));
     }
 }
+</script>
+
+<script>
+// ENTER basınca submit olmasın + trim
+document.querySelectorAll(".campus-input").forEach(input => {
+    input.addEventListener("keydown", e => {
+        if (e.key === "Enter") e.preventDefault();
+    });
+
+    input.addEventListener("blur", e => {
+        e.target.value = e.target.value.trim();
+    });
+});
 </script>
 
 {% endblock %}

@@ -12,13 +12,24 @@
         "O": "Onderhoud",
         "K": "Kostgeld",
         "P": "Preventie",
-        "F": "Fuel",
         "A": "Activiteit",
         "EW": "Energie Water",
         "EE": "Energie Elektriciteit",
         "EG": "Energie Gas",
         "M": "Market",
         "H": "Huur",
-        "B": "Besox"
+        "B": "Besox",
+        "KM": "Klein Materiaal",
+        "BR": "Brandstof",
+        "V": "Verzekering",
+        "BK": "Bank Kosten",
+        "AK": "Auto Kosten",
+        "G": "Gift",
+        "BE": "Belasting",
+        "I": "Internet",
+        "S": "Salaris",
+        "KU": "Kantoor Uitgaven",
+        "AF": "Afrekening",
+        "AG": "Agodi"
     }
 }
