@@ -32,11 +32,23 @@
 
                 {% for code, desc in campus_options.items() %}
                 <option value="{{ code }}" {% if campus_filter==code %}selected{% endif %}>
-                    {{ code }} - {{ desc }}
+                    {{ code }} 
                 </option>
                 {% endfor %}
             </select>
         </div>
+        <div class="filter-item">
+    <label>Categorie Filter</label>
+    <select name="category_filter" class="fin-select">
+        <option value="ALL">Alle Categorieën</option>
+        {% for code, desc in category_options.items() %}
+            <option value="{{ code }}"
+                {% if selected_category == code %}selected{% endif %}>
+                {{ desc }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
 
         <div class="filter-item">
             <label>Upload Batch</label>
@@ -56,6 +68,7 @@
                                 account_filter=account_filter,
                                 search='',
                                 campus_filter='ALL',
+                                category_filter='ALL',
                                 batch_filter='ALL') }}"
                class="btn-secondary-small">
                 Reset
@@ -120,7 +133,7 @@
                                 {% for code, desc in category_options.items() %}
                                     <option value="{{ code }}"
                                         {% if tx.CategoryCode == code %}selected{% endif %}>
-                                        {{ code }} — {{ desc }}
+                                         {{ desc }}
                                     </option>
                                 {% endfor %}
                             </select>

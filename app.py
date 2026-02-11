@@ -708,6 +708,10 @@ def view_transactions():
     campus_filter  = request.args.get("campus_filter", "ALL")
     search         = request.args.get("search", "").strip()
     batch_filter   = request.args.get("batch_filter", "ALL")
+    category_filter = request.args.get("category_filter")
+
+    if category_filter and category_filter != "ALL":
+        df = df[df["CategoryCode"] == category_filter]
 
     # ---------------------------
     # FILTERS
@@ -717,8 +721,16 @@ def view_transactions():
     if batch_filter != "ALL":
         filtered = filtered[filtered["UploadTimestamp"] == batch_filter]
 
-    if campus_filter != "ALL":
-        filtered = filtered[filtered["CampusCode"] == campus_filter]
+    if campus_filter == "NONE":
+    # Boş olanlar (henüz işlenmemiş)
+       filtered = filtered[
+            (filtered["CampusCode"].isna()) |
+           (filtered["CampusCode"] == "")
+     ]
+
+    elif campus_filter != "ALL":
+      filtered = filtered[filtered["CampusCode"] == campus_filter]
+
 
     if search:
         filtered = filtered[
@@ -742,6 +754,12 @@ def view_transactions():
     filtered.drop(columns=["BookingDate_dt"], inplace=True)
 
     transactions = filtered.to_dict("records")
+    category_map = categories_info.get("CategoryCodes", {})
+
+    for tx in transactions:
+        code = tx.get("CategoryCode")
+        tx["CategoryName"] = category_map.get(code, code)
+
     upload_batches = sorted(df["UploadTimestamp"].dropna().unique(), reverse=True)
 
     # ======================================================
@@ -779,7 +797,8 @@ def view_transactions():
                 account_filter=account_filter,
                 campus_filter=campus_filter,
                 search=search,
-                batch_filter=batch_filter
+                batch_filter=batch_filter,
+                selected_category=category_filter
             )
          )
 
@@ -1292,185 +1311,231 @@ def generate_report():
         category_descriptions=category_descriptions
     )
 
-@app.route('/download_pdf', methods=['POST'])
+@app.route("/download_pdf", methods=["GET"])
 @login_required
 def download_pdf():
+
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
     from reportlab.lib.styles import getSampleStyleSheet
     from reportlab.lib.pagesizes import A4
     from reportlab.lib import colors
     from reportlab.lib.units import cm
+    from matplotlib.figure import Figure
+    from io import BytesIO
+    import base64
+    import tempfile
+    import os
 
-    # JSON'i al
-    report_json = request.form.get("report_json")
-    data = json.loads(report_json)
+    # ==========================
+    # PARAMS
+    # ==========================
+    start_date = request.args.get("start")
+    end_date   = request.args.get("end")
 
-    # Geçici PDF oluştur
+    df = load_transactions().copy()
+    df["DateObj"] = pd.to_datetime(df["BookingDate"], dayfirst=True, errors="coerce")
+
+    d1, d2 = pd.to_datetime(start_date), pd.to_datetime(end_date)
+    filt = df[(df["DateObj"] >= d1) & (df["DateObj"] <= d2)].copy()
+
+    if filt.empty:
+        return "Geen data voor gekozen periode."
+
+    # ==========================
+    # SUMMARY
+    # ==========================
+    income  = filt[filt.Amount > 0].Amount.sum()
+    expense = filt[filt.Amount < 0].Amount.sum()
+    net     = income + expense
+
+    # ==========================
+    # CAMPUS
+    # ==========================
+    real = ["H", "D", "JR", "K"]
+    campus_breakdown = {}
+
+    for c in real:
+        sub = filt[filt["CampusCode"] == c]
+        inc = sub[sub.Amount > 0].Amount.sum()
+        exp = abs(sub[sub.Amount < 0].Amount.sum())
+        campus_breakdown[c] = {
+            "Income": inc,
+            "Expense": exp,
+            "Net": inc - exp
+        }
+
+    # ==========================
+    # CATEGORY
+    # ==========================
+    categories_info = load_categories()
+    category_map = categories_info.get("CategoryCodes", {})
+
+    category_breakdown = {}
+    cats = sorted(filt["CategoryCode"].dropna().unique())
+
+    for cat in cats:
+        sub = filt[filt["CategoryCode"] == cat]
+        inc = sub[sub.Amount > 0].Amount.sum()
+        exp = abs(sub[sub.Amount < 0].Amount.sum())
+        category_breakdown[cat] = {
+            "Income": inc,
+            "Expense": exp,
+            "Net": inc - exp
+        }
+
+    # ==========================
+    # GRAPHICS
+    # ==========================
+    filt["Month"] = filt["DateObj"].dt.to_period("M").astype(str)
+    monthly_net = filt.groupby("Month")["Amount"].sum()
+
+    fig1 = Figure(figsize=(8,4))
+    ax1 = fig1.subplots()
+    monthly_net.plot(ax=ax1, marker="o")
+    ax1.grid(alpha=0.3)
+    ax1.set_title("Maandelijkse Netto Trend")
+
+    b1 = BytesIO()
+    fig1.savefig(b1, format="png")
+    trend_b64 = "data:image/png;base64," + base64.b64encode(b1.getvalue()).decode()
+
+    inc = filt[filt.Amount > 0].groupby("Month")["Amount"].sum()
+    exp = abs(filt[filt.Amount < 0].groupby("Month")["Amount"].sum())
+
+    months = sorted(set(inc.index) | set(exp.index))
+    inc = inc.reindex(months, fill_value=0)
+    exp = exp.reindex(months, fill_value=0)
+
+    fig2 = Figure(figsize=(8,4))
+    ax2 = fig2.subplots()
+    x = range(len(months))
+    w = 0.4
+
+    ax2.bar([i-w/2 for i in x], inc.values, width=w, label="Inkomsten")
+    ax2.bar([i+w/2 for i in x], exp.values, width=w, label="Uitgaven")
+    ax2.set_xticks(list(x))
+    ax2.set_xticklabels(months, rotation=45)
+    ax2.legend()
+    ax2.grid(alpha=0.3)
+
+    b2 = BytesIO()
+    fig2.savefig(b2, format="png")
+    income_expense_b64 = "data:image/png;base64," + base64.b64encode(b2.getvalue()).decode()
+
+    # ==========================
+    # PDF BUILD
+    # ==========================
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     pdf_path = tmp.name
+
     doc = SimpleDocTemplate(pdf_path, pagesize=A4)
     styles = getSampleStyleSheet()
     story = []
 
-    # ---------- Base64 → Image Helper ----------
-    def img_from_base64(img64, max_width=450):
-        if not img64:
-            return None
-        try:
-            raw = img64.split(",")[1]
-            img_data = base64.b64decode(raw)
-            img = Image(BytesIO(img_data))
-            img._restrictSize(max_width, max_width * 2)
-            return img
-        except:
-            return None
-
-    # ---------- Logo ----------
-    try:
-        logo = Image("static/img/logo.png", width=40, height=40)
-        story.append(logo)
-    except:
-        pass
-
+    # Title
     story.append(Paragraph("<b>Financieel Rapport</b>", styles["Title"]))
     story.append(Spacer(1, 10))
-
-    # ---------- Period ----------
-    p = data["period"]
-    story.append(Paragraph(f"Periode: <b>{p['start']}</b> t/m <b>{p['end']}</b>", styles["Heading3"]))
+    story.append(Paragraph(f"Periode: {start_date} t/m {end_date}", styles["Normal"]))
     story.append(Spacer(1, 20))
 
-    # ==========================
     # SUMMARY TABLE
-    # ==========================
-    summary = data["summary"]
     summary_table = Table([
         ["Omschrijving", "Bedrag (EUR)"],
-        ["Inkomsten", f"{summary['income']:.2f}"],
-        ["Uitgaven", f"{summary['expense']:.2f}"],
-        ["Netto", f"{summary['net']:.2f}"]
+        ["Inkomsten", f"{income:.2f}"],
+        ["Uitgaven", f"{abs(expense):.2f}"],
+        ["Netto", f"{net:.2f}"]
     ], colWidths=[7*cm, 5*cm])
 
     summary_table.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#E3E3E3")),
-        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+        ("BACKGROUND", (0,0), (-1,0), colors.lightgrey),
         ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
-        ("ALIGN", (0,0), (-1,-1), "CENTER")
+        ("ALIGN", (1,1), (-1,-1), "RIGHT")
     ]))
+
     story.append(summary_table)
     story.append(Spacer(1, 20))
 
-    # ==========================
-    # CAMPUS TABLE
-    # ==========================
-    story.append(Paragraph("<b>Campus Overzicht</b>", styles["Heading2"]))
-
-    campus_rows = [["Campus", "Inkomsten", "Uitgaven", "Netto"]]
-    for c, row in data["campus"].items():
-        campus_rows.append([
-            c,
-            f"{row['Income']:.2f}",
-            f"{row['Expense']:.2f}",
-            f"{row['NetBalance']:.2f}"
-        ])
-
-    campus_table = Table(campus_rows)
-    campus_table.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#D1ECFF")),
-        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
-        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
-        ("ALIGN", (0,0), (-1,-1), "CENTER")
-    ]))
-    story.append(campus_table)
-    story.append(Spacer(1, 20))
-
-    # ==========================
-    # CATEGORY TABLE
-    # ==========================
-    story.append(Paragraph("<b>Categorie Overzicht</b>", styles["Heading2"]))
-
+    # CATEGORY TABLE (UZUN İSİMLER)
     cat_rows = [["Categorie", "Inkomsten", "Uitgaven", "Netto"]]
-    for cat, row in data["categories"].items():
-        net = row.get("NetBalance", row.get("Net", 0))
+
+    for cat, row in category_breakdown.items():
         cat_rows.append([
-            cat,
+            category_map.get(cat, cat),
             f"{row['Income']:.2f}",
             f"{row['Expense']:.2f}",
-            f"{net:.2f}"
+            f"{row['Net']:.2f}"
         ])
 
     cat_table = Table(cat_rows)
     cat_table.setStyle(TableStyle([
         ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#FFF3CD")),
-        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
         ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
-        ("ALIGN", (0,0), (-1,-1), "CENTER")
+        ("ALIGN", (1,1), (-1,-1), "RIGHT")
     ]))
+
     story.append(cat_table)
     story.append(Spacer(1, 20))
 
-    # ==========================
-    # GRAPHS
-    # ==========================
-    story.append(Paragraph("<b>Grafieken</b>", styles["Heading2"]))
+    # CATEGORY × CAMPUS MATRIX
+    story.append(Paragraph("<b>Categorie × Campus Overzicht</b>", styles["Heading2"]))
+    story.append(Spacer(1, 10))
 
-    for label, img64 in data["graphs"].items():
-        img = img_from_base64(img64)
-        if img:
-            story.append(Paragraph(label.replace("_", " ").title(), styles["Heading3"]))
-            story.append(img)
-            story.append(Spacer(1, 15))
+    matrix_rows = [["Categorie"] + real]
 
-    # ==========================
-    # CATEGORY × CAMPUS MATRIX (FINAL FIXED)
-    # ==========================
-    # ==========================
-# CATEGORIE UITLEG (JSON = SINGLE SOURCE)
-# ==========================
-    categories_info = load_categories()
-    category_map = categories_info.get("CategoryCodes", {})
+    for cat in cats:
+        row_data = [category_map.get(cat, cat)]
 
+        for campus in real:
+            sub = filt[
+                (filt["CategoryCode"] == cat) &
+                (filt["CampusCode"] == campus)
+            ]
+            row_data.append(f"{sub['Amount'].sum():.2f}")
+
+        matrix_rows.append(row_data)
+
+    matrix_table = Table(matrix_rows)
+    matrix_table.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.lightgrey),
+        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
+        ("ALIGN", (1,1), (-1,-1), "RIGHT"),
+        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold")
+    ]))
+
+    story.append(matrix_table)
     story.append(Spacer(1, 20))
-    story.append(Paragraph("<b>Categorie Uitleg</b>", styles["Heading2"]))
 
-    cat_table = [["Categorie", "Betekenis"]]
+    # GRAPHS
+    def img_from_base64(img64):
+        raw = img64.split(",")[1]
+        img_data = base64.b64decode(raw)
+        img = Image(BytesIO(img_data))
+        img._restrictSize(450, 600)
+        return img
 
-    for code, desc in sorted(category_map.items()):
-        cat_table.append([code, desc])
+    story.append(Paragraph("<b>Grafieken</b>", styles["Heading2"]))
+    story.append(Spacer(1, 10))
 
-    story.append(
-        Table(
-            cat_table,
-            colWidths=[80, 400],
-            style=[
-                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-                ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-                ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("ALIGN", (0, 0), (0, -1), "CENTER"),
-            ],
-        )
+    story.append(Paragraph("Maandelijkse Trend", styles["Heading3"]))
+    story.append(img_from_base64(trend_b64))
+    story.append(Spacer(1, 15))
+
+    story.append(Paragraph("Inkomsten vs Uitgaven", styles["Heading3"]))
+    story.append(img_from_base64(income_expense_b64))
+
+    # BUILD EN SONDA
+    doc.build(story)
+
+    return send_file(
+        pdf_path,
+        as_attachment=True,
+        download_name="rapport.pdf",
+        mimetype="application/pdf"
     )
 
-
-    # ==========================
-    # TRANSACTIONS (LAST PAGE)
-    # ==========================
-    story.append(Paragraph("<b>Transacties</b>", styles["Heading2"]))
-
-    for tx in data["transactions"]:
-        story.append(Paragraph(
-            f"{tx['BookingDate']} — {tx['CounterpartyName']} — "
-            f"{tx['Description']} — {tx['Amount']} EUR",
-            styles["Normal"]
-        ))
-        story.append(Spacer(1, 4))
-
-    doc.build(story)
-    return send_file(pdf_path, as_attachment=True, download_name="rapport.pdf")
-
-
-
 #------MAIN-----#
+
+
 
 if __name__ == "__main__":
     ensure_data_dir()

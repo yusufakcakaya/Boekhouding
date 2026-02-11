@@ -45,15 +45,28 @@
         <img src="/static/img/logo.png" class="report-logo">
         <div>
             <h1 class="report-main-title">Financieel Rapport</h1>
-            <p class="report-period">Periode: {{ start_date }} t/m {{ end_date }}</p>
+            <p class="report-period">
+                Periode: {{ start_date }} t/m {{ end_date }}
+            </p>
         </div>
     </div>
 
-    <form method="POST" action="{{ url_for('download_pdf') }}">
-        <textarea name="report_json" style="display:none;">{{ report_json }}</textarea>
-        <button class="btn-primary pdf-btn">PDF Download</button>
-    </form>
+    <button type="button"
+            class="btn-primary pdf-btn"
+            onclick="downloadPDF()">
+        PDF Download
+    </button>
 </div>
+
+<script>
+function downloadPDF() {
+    const start = "{{ start_date }}";
+    const end   = "{{ end_date }}";
+
+    window.location.href =
+        `/download_pdf?start=${start}&end=${end}&account=ALL`;
+}
+</script>
 
 
 
@@ -143,7 +156,7 @@
 
         {% for cat, row in report_data.categories.items() %}
             <tr>
-                <td>{{ cat }}</td>
+                <td>{{ category_descriptions.get(cat, cat) }}</td>
                 <td class="pos">{{ row.Income | round(2) }}</td>
                 <td class="neg">{{ row.Expense | round(2) }}</td>
                 <td><b>{{ row.NetBalance | round(2) }}</b></td>
@@ -197,8 +210,7 @@
     <div class="category-grid">
         {% for cat, camps in report_data.category_campus.items() %}
         <div class="category-card">
-            <div class="cat-badge">{{ cat }}</div>
-
+            <div class="cat-badge">{{ category_descriptions.get(cat, cat) }}</div>
             <table class="fin-table">
                 <thead>
                     <tr>
@@ -225,27 +237,6 @@
     </div>
 </div>
 
-
-
-<!-- ========== CATEGORY DEFINITIONS (FULL WIDTH) ========== -->
-<div class="full-width-section">
-    <h3 class="mt-4">Categorie Uitleg</h3>
-    <div class="card">
-        <table class="table table-bordered">
-            <thead>
-                <tr><th>Categorie</th><th>Betekenis</th></tr>
-            </thead>
-            <tbody>
-                {% for code, desc in category_descriptions.items() %}
-                <tr>
-                    <td><b>{{ code }}</b></td>
-                    <td>{{ desc }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
 
 
 <!-- ========== TRANSACTION SUMMARY (FULL WIDTH) ========== -->
