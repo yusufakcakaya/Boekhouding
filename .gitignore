@@ -11,3 +11,4 @@ __pycache__/
 # DATA (ÇOK KRİTİK)
 data/
 *.db
+!database.db
