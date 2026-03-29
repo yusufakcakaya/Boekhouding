@@ -1,7 +1,7 @@
 # ============================================
 # IMPORTS & GLOBAL CONFIG
 # ============================================
-
+from services.database import init_db
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
@@ -337,6 +337,18 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("login"))
+
+# ============================================
+# LOGOUT
+# ============================================
+
+from services.database import create_backup
+
+@app.route("/admin/backup")
+@login_required
+def manual_backup():
+    path = create_backup()
+    return f"Backup gemaakt: {path}"
 
 
 # ============================================
@@ -1539,4 +1551,5 @@ def download_pdf():
 
 if __name__ == "__main__":
     ensure_data_dir()
+    init_db()
     app.run(debug=True, port=5001)

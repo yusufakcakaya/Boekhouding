@@ -3,6 +3,7 @@ import json
 import pandas as pd
 import numpy as np
 import os
+from services.database import get_connection
 
 DATA_DIR = "data"
 TRANSACTIONS_FILE = os.path.join(DATA_DIR, "transactions.json")
@@ -31,36 +32,31 @@ def ensure_data_dir():
             json.dump(default, f, indent=4)
 
 def load_transactions():
-    ensure_data_dir()
+    conn = get_connection()
+    
+    query = """
+        SELECT 
+            id AS ID,
+            booking_date AS BookingDate,
+            amount AS Amount,
+            counterparty AS CounterpartyName,
+            description AS Description,
+            campus_code AS CampusCode,
+            category_code AS CategoryCode,
+            account_name AS AccountName,
+            upload_timestamp AS UploadTimestamp
+        FROM transactions
+    """
 
-    try:
-        with open(TRANSACTIONS_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-    except:
-        data = []
+    df = pd.read_sql_query(query, conn)
+    conn.close()
 
-    df = pd.DataFrame(data)
+    return df
 
     # -------------------------------
     # ZORUNLU KOLONLARI GARANTİ ET
     # -------------------------------
-    required_cols = [
-        "ID",
-        "BookingDate",
-        "Amount",
-        "CounterpartyName",
-        "Description",
-        "CampusCode",
-        "CategoryCode",
-        "AccountName",
-        "UploadTimestamp"
-    ]
 
-    for col in required_cols:
-        if col not in df.columns:
-            df[col] = ""
-
-    return df
 
  
     
@@ -91,9 +87,41 @@ def save_single_transaction_df(tx_id, campus_code, category_code):
 
 
 def save_transactions(df):
-    df.replace({np.nan: None, "": None}, inplace=True)
-    with open(TRANSACTIONS_FILE, "w", encoding="utf-8") as f:
-        json.dump(df.to_dict("records"), f, indent=4)
+    df = df.replace({np.nan: None, "": None})
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Önce tabloyu temizliyoruz (JSON gibi full replace mantığı)
+    cursor.execute("DELETE FROM transactions")
+
+    for _, row in df.iterrows():
+        cursor.execute("""
+            INSERT INTO transactions (
+                id,
+                booking_date,
+                amount,
+                counterparty,
+                description,
+                campus_code,
+                category_code,
+                account_name,
+                upload_timestamp
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            row.get("ID"),
+            row.get("BookingDate"),
+            row.get("Amount"),
+            row.get("CounterpartyName"),
+            row.get("Description"),
+            row.get("CampusCode"),
+            row.get("CategoryCode"),
+            row.get("AccountName"),
+            row.get("UploadTimestamp"),
+        ))
+
+    conn.commit()
+    conn.close()
 
 
 def get_transaction_by_id_df(tx_id):
