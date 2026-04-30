@@ -84,12 +84,21 @@ MASTER_CODE = "Lucerna2024!"
 # DATA DIR + CATEGORY HANDLING
 # ============================================
 
+import re
 
 def parse_campus_string(raw):
     if not raw or raw.strip() == "" or raw.upper() == "NONE":
-        return []   # hiçbir campus → işlem yapma
+        return []
 
-    text = raw.upper().replace(",", " ").strip()
+    # virgül → nokta (decimal için)
+    text = raw.upper().replace(",", ".").strip()
+
+    # % işaretlerini temizle
+    text = text.replace("%", "")
+
+    # "50 H" → "50H"
+    text = re.sub(r'(\d+[.]?\d*)\s+([A-Z]+)', r'\1\2', text)
+
     tokens = [t for t in text.split() if t.strip()]
 
     result = []
@@ -97,30 +106,45 @@ def parse_campus_string(raw):
 
     for t in tokens:
 
-        # %40H veya H40
-        m = re.match(r"%?(\d+)%?([A-Z]+)$", t)
+        # 34.5H veya 50H
+        m = re.match(r"(\d+[.]?\d*)([A-Z]+)$", t)
         if m:
-            percent = int(m.group(1))
+            percent = float(m.group(1))
             code = m.group(2)
+
             if code not in VALID_CODES:
                 continue
+
             result.append({"code": code, "percent": percent})
             has_percent = True
             continue
 
-        # Sadece H , D , JR , K
+        # sadece H / D / JR vs
         if t in VALID_CODES:
             result.append({"code": t, "percent": None})
             continue
 
     if not result:
-        return []    # hiçbir geçerli kampus yok → sorun yok
+        return []
 
     # yüzdesiz ise eşit dağıt
     if not has_percent:
         eq = round(100 / len(result), 5)
         for r in result:
             r["percent"] = eq
+
+    # 🔥 eksik yüzdeleri tamamla
+    else:
+        total = sum(r["percent"] for r in result if r["percent"] is not None)
+
+        missing = [r for r in result if r["percent"] is None]
+
+        if missing:
+            remaining = max(0, 100 - total)
+            share = remaining / len(missing)
+
+            for r in missing:
+                r["percent"] = share
 
     return result
 
@@ -350,6 +374,15 @@ def manual_backup():
     path = create_backup()
     return f"Backup gemaakt: {path}"
 
+# ============================================
+# DARABASE DOWNLOAD
+# ============================================
+
+from flask import send_file
+
+@app.route("/download-db")
+def download_db():
+    return send_file("database.db", as_attachment=True)
 
 # ============================================
 # ADMIN: USER MANAGEMENT
