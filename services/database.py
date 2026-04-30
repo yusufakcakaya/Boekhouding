@@ -3,7 +3,7 @@ import os
 import datetime
 import subprocess
 
-DB_PATH = os.environ.get("DB_PATH", "database.db")
+DB_PATH = "database.db"
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH, timeout=10)
